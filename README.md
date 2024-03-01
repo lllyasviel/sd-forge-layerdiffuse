@@ -12,4 +12,5 @@ This code base is highly dynamic and may change a lot in the next month. If you 
 
 Because many people may be curious about how the latent preview looks like during a transparent diffusion process, I recorded a video so that you can see it before you download the models and extensions:
 
+https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/e93b71d1-3560-48e2-a970-0b8efbfebb42
 
