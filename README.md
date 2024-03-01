@@ -20,4 +20,9 @@ You can see that the native transparent diffusion can process transparent glass,
 
 Below models are released:
 
-1. ``
+1. `layer_xl_transparent_attn.safetensors`
+2. `layer_xl_transparent_conv.safetensors`
+3. `layer_xl_fg2ble.safetensors`
+4. `layer_xl_fgble2bg.safetensors`
+5. `layer_xl_bg2ble.safetensors`
+6. `layer_xl_bgble2fg.safetensors`
