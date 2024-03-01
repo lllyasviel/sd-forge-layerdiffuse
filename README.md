@@ -1,5 +1,7 @@
 # sd-forge-layerdiffusion
 
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/36598904-ae5f-4578-87d3-4b496e11dcc5)
+
 This is a WIP extension for SD WebUI [(via Forge)](https://github.com/lllyasviel/stable-diffusion-webui-forge) to generate transparent images and layers.
 
 The image generating and basic layer functionality is working now, but the transparent img2img is not finished yet (will finish in about one week).
