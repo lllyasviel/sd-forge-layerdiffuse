@@ -15,6 +15,7 @@ from ldm_patched.modules.utils import load_torch_file
 from lib_layerdiffusion.models import TransparentVAEDecoder, TransparentVAEEncoder
 from ldm_patched.modules.model_management import current_loaded_models
 from modules_forge.forge_sampler import sampling_prepare
+from modules.modelloader import load_file_from_url
 
 
 def is_model_loaded(model):
@@ -130,11 +131,21 @@ class LayerDiffusionForForge(scripts.Script):
 
         if method in [LayerMethod.FG_ONLY_ATTN, LayerMethod.FG_ONLY_CONV, LayerMethod.BG_BLEND_TO_FG]:
             if vae_transparent_decoder is None:
-                vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(os.path.join(layer_model_root, 'vae_transparent_decoder.safetensors')))
+                model_path = load_file_from_url(
+                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/vae_transparent_decoder.safetensors',
+                    model_dir=layer_model_root,
+                    file_name='vae_transparent_decoder.safetensors'
+                )
+                vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(model_path))
             vae_transparent_decoder.patch(p, vae.patcher, output_origin)
 
             if vae_transparent_encoder is None:
-                vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(os.path.join(layer_model_root, 'vae_transparent_encoder.safetensors')))
+                model_path = load_file_from_url(
+                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/vae_transparent_encoder.safetensors',
+                    model_dir=layer_model_root,
+                    file_name='vae_transparent_encoder.safetensors'
+                )
+                vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(model_path))
             vae_transparent_encoder.patch(p, vae.patcher)
 
         if fg_image is not None:
@@ -150,31 +161,61 @@ class LayerDiffusionForForge(scripts.Script):
             blend_image = unet.model.latent_format.process_in(blend_image)
 
         if method == LayerMethod.FG_ONLY_ATTN:
-            layer_lora_model = load_layer_model_state_dict(os.path.join(layer_model_root, 'layer_xl_transparent_attn.safetensors'))
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_xl_transparent_attn.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_xl_transparent_attn.safetensors'
+            )
+            layer_lora_model = load_layer_model_state_dict(model_path)
             unet.load_frozen_patcher(layer_lora_model, weight)
 
         if method == LayerMethod.FG_ONLY_CONV:
-            layer_lora_model = load_layer_model_state_dict(os.path.join(layer_model_root, 'layer_xl_transparent_conv.safetensors'))
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_xl_transparent_conv.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_xl_transparent_conv.safetensors'
+            )
+            layer_lora_model = load_layer_model_state_dict(model_path)
             unet.load_frozen_patcher(layer_lora_model, weight)
 
         if method == LayerMethod.BG_TO_BLEND:
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_xl_bg2ble.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_xl_bg2ble.safetensors'
+            )
             unet.extra_concat_condition = bg_image
-            layer_lora_model = load_layer_model_state_dict(os.path.join(layer_model_root, 'layer_xl_bg2ble.safetensors'))
+            layer_lora_model = load_layer_model_state_dict(model_path)
             unet.load_frozen_patcher(layer_lora_model, weight)
 
         if method == LayerMethod.FG_TO_BLEND:
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_xl_fg2ble.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_xl_fg2ble.safetensors'
+            )
             unet.extra_concat_condition = fg_image
-            layer_lora_model = load_layer_model_state_dict(os.path.join(layer_model_root, 'layer_xl_fg2ble.safetensors'))
+            layer_lora_model = load_layer_model_state_dict(model_path)
             unet.load_frozen_patcher(layer_lora_model, weight)
 
         if method == LayerMethod.BG_BLEND_TO_FG:
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_xl_bgble2fg.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_xl_bgble2fg.safetensors'
+            )
             unet.extra_concat_condition = torch.cat([bg_image, blend_image], dim=1)
-            layer_lora_model = load_layer_model_state_dict(os.path.join(layer_model_root, 'layer_xl_bgble2fg.safetensors'))
+            layer_lora_model = load_layer_model_state_dict(model_path)
             unet.load_frozen_patcher(layer_lora_model, weight)
 
         if method == LayerMethod.FG_BLEND_TO_BG:
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_xl_fgble2bg.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_xl_fgble2bg.safetensors'
+            )
             unet.extra_concat_condition = torch.cat([fg_image, blend_image], dim=1)
-            layer_lora_model = load_layer_model_state_dict(os.path.join(layer_model_root, 'layer_xl_fgble2bg.safetensors'))
+            layer_lora_model = load_layer_model_state_dict(model_path)
             unet.load_frozen_patcher(layer_lora_model, weight)
 
         sigma_end = unet.model.model_sampling.percent_to_sigma(ending_step)
