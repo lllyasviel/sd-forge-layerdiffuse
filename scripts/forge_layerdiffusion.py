@@ -5,7 +5,7 @@ import torch
 import numpy as np
 import copy
 
-from modules import scripts
+from modules import scripts, script_callbacks, shared
 from modules.processing import StableDiffusionProcessing
 from lib_layerdiffusion.enums import ResizeMode
 from lib_layerdiffusion.utils import rgba2rgbfp32, to255unit8, crop_and_resize_image
@@ -246,3 +246,13 @@ class LayerDiffusionForForge(scripts.Script):
         p.sd_model.forge_objects.unet = unet
         p.sd_model.forge_objects.vae = vae
         return
+
+def on_ui_settings():
+    section = ("Layer Diffusion", "Layer Diffusion")
+
+    shared.opts.add_option(
+        "layerdiffusion_save_transparent_images",
+        shared.OptionInfo(False, "Save images with transparency", section=section),
+    )
+
+script_callbacks.on_ui_settings(on_ui_settings)

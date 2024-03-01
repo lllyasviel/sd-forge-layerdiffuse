@@ -3,6 +3,7 @@ import torch
 import cv2
 import numpy as np
 
+from PIL import Image
 from tqdm import tqdm
 from typing import Optional, Tuple
 from diffusers.configuration_utils import ConfigMixin, register_to_config
@@ -10,6 +11,9 @@ from diffusers.models.modeling_utils import ModelMixin
 from diffusers.models.unet_2d_blocks import UNetMidBlock2D, get_down_block, get_up_block
 import ldm_patched.modules.model_management as model_management
 from ldm_patched.modules.model_patcher import ModelPatcher
+
+from modules import images, processing
+from modules.shared import opts
 
 
 def zero_module(module):
@@ -262,7 +266,22 @@ class TransparentVAEDecoder:
 
             pngs = torch.cat([fg, alpha], dim=3)
             pngs = (pngs * 255.0).detach().cpu().float().numpy().clip(0, 255).astype(np.uint8)
-            for png in pngs:
+            for i, png in enumerate(pngs):
+                png = Image.fromarray(png)
+                infotext = processing.Processed(p, []).infotext(p, i)
+                
+                if getattr(opts, 'layerdiffusion_save_transparent_images', False):
+                    images.save_image(
+                        image=png,
+                        path=p.outpath_samples,
+                        basename="",
+                        seed=p.seeds[i],
+                        prompt=p.prompts[i],
+                        extension=getattr(opts, 'samples_format', 'png'),
+                        info=infotext,
+                        p=p,
+                        suffix="-transparent"
+                    )
                 p.extra_result_images.append(png)
 
             return vis
