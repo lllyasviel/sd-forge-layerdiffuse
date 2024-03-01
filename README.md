@@ -34,3 +34,7 @@ Below models are released:
 8. `vae_transparent_decoder.safetensors` This is an image decoder that takes SD VAE outputs and latent image as inputs, and outputs a real PNG image. The model architecture is also more lightweight than the paper version to reduce VRAM requirement. I have made sure that the reduced parameters does not influence result quality.
 
 Below models may be released soon (if necessary):
+
+1. A model that can generate foreground and background together (using attention sharing similar to AnimateDiff). I put this model on hold because of these reasons: (1) the other released models can already achieve all functionalities and this model does not bring more functionalities. (2) the inference speed of this model is 3x slower than others and requires 4x more VRAM than other released model, and I am working on reducing the VRAM of this model if necessary. (3) This model will involve more hyperparameters and if demanded, I will investigate the best practice for inference/training before release it.
+2. The current background-conditioned foreground model may be a bit too lightweight. I will probably release a heavier one with more parameters and different behaviors (see also the discussions later).
+3. Because the difference between diffusers training and k-diffusion inference, I can observe some mystical problems like sometimes DPM++ will give artifacts but Euler A will fix it. I am looking into it and may provide some revised model that works better with all A1111 samplers.
