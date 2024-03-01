@@ -46,5 +46,5 @@ We highly encourage you to go through the sanity check and get exactly same resu
 
 The two used models are:
 
-1. https://civitai.com/models/133005?modelVersionId=252902 Juggernaut XL V6 (note that the used one is **V6**, not v7 or v8 or V9)
+1. https://civitai.com/models/133005?modelVersionId=198530 Juggernaut XL V6 (note that the used one is **V6**, not v7 or v8 or V9)
 2. https://civitai.com/models/261336?modelVersionId=295158 anima_pencil-XL 1.0.0 (note that the used one is **1.0.0**, not 1.5.0)
