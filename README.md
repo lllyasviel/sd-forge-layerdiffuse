@@ -93,6 +93,18 @@ Make sure that you get this cup
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/3b7df3f3-c6c1-401d-afa8-5a1c404165c9)
 
+glowing effect, book of magic, high quality
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 1024x1024, Model hash: 1fe6c7ec54, Model: juggernautXL_version6Rundiffusion, layerdiffusion_enabled: True, layerdiffusion_method: Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: True, layerdiffusion_bg_image: False, layerdiffusion_blend_image: True, layerdiffusion_resize_mode: Crop and Resize, Version: f0.0.17v1.8.0rc-latest-269-gef35383b
+
+make sure that you get this glowing book
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/c093c862-17a3-4604-8e23-6c7f3a0eb4b3)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/fa0b02b0-b530-48ed-a8ec-17bd9cccfc87)
+
 OK then lets move on to a bit longer prompt:
 
 (this prompt is from https://civitai.com/images/3160575)
