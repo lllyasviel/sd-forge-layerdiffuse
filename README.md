@@ -20,7 +20,7 @@ You can see that the native transparent diffusion can process transparent glass,
 
 Note that all currently released models are for SDXL. Models for SD1.5 may be provided later if demanded.
 
-Note that in this extension, all model downloads/selection are fully automatic. In fact, you do not need to know those models if you only use them.
+**Note that in this extension, all model downloads/selection are fully automatic. In fact most users can just skip this section.**
 
 Below models are released:
 
