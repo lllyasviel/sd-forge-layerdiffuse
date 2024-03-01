@@ -118,3 +118,33 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/53d84e56-4061-4d91-982f-8f1e927f68b7)
 
 (I am not very good at writing prompts in the AnimagineXL format, and perhaps you can get better results with better prompts)
+
+### Background Condition
+
+First download this image:
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/e7e2d80e-ffbe-4724-812a-5139a88027e3)
+
+then set the interface with
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/99a7e648-a83f-4ea5-bff6-66a1c624c0bd)
+
+then set the parameters with
+
+old man sitting, high quality
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x1152, Model hash: 1fe6c7ec54, Model: juggernautXL_version6Rundiffusion, layerdiffusion_enabled: True, layerdiffusion_method: From Background to Blending, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: True, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, Version: f0.0.17v1.8.0rc-latest-269-gef35383b
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/4dd5022a-d9fd-4436-83b8-775e2456bfc6)
+
+Then set the interface with (you first change the mode and then drag the image from result to interface)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/8277399c-fc9b-43fd-a9bb-1c7a8dcebb3f)
+
+Then change the sampler to Euler A or UniPC or some other sampler that is not dpm (This is probably because of some difference between diffusers training script and webui's k-diffusion. I am still looking into this and may revise my training script and model very soon so that this step will be removed.)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/2c7124c5-e5d4-40cf-b106-e55c33e40003)
+
+
