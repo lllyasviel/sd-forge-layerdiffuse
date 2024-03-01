@@ -66,7 +66,7 @@ class LayerDiffusionForForge(scripts.Script):
                 ending_step = gr.Slider(label="Stop At", value=1.0, minimum=0.0, maximum=1.0)
 
             resize_mode = gr.Radio(choices=[e.value for e in ResizeMode], value=ResizeMode.CROP_AND_RESIZE.value, label="Resize Mode", type='value', visible=False)
-            output_origin = gr.Checkbox(label='Output original mat for img2img', value=False)
+            output_origin = gr.Checkbox(label='Output original mat for img2img', value=False, visible=False)
 
         def method_changed(m):
             m = LayerMethod(m)
