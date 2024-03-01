@@ -104,3 +104,17 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/845c0e35-0096-484b-be2c-d443b4dc63cd)
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/47ee7ba1-7f64-4e27-857f-c82c9d2bbb14)
+
+Anime model test:
+
+girl in dress, high quality
+
+Negative prompt: nsfw, bad, ugly, text, watermark
+
+Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x1152, Model hash: 7ed8da12d9, Model: animaPencilXL_v100, layerdiffusion_enabled: True, layerdiffusion_method: Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, Version: f0.0.17v1.8.0rc-latest-269-gef35383b
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/fcec8ea5-32de-44af-847a-d66dd62b95d1)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/53d84e56-4061-4d91-982f-8f1e927f68b7)
+
+(I am not very good at writing prompts in the AnimagineXL format, and perhaps you can get better results with better prompts)
