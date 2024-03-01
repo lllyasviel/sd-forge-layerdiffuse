@@ -15,3 +15,9 @@ Because many people may be curious about how the latent preview looks like durin
 https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/e93b71d1-3560-48e2-a970-0b8efbfebb42
 
 You can see that the native transparent diffusion can process transparent glass, semi-transparent glowing effects, etc, that are not possible with simple background removal methods. Native transparent diffusion also gives you detailed fur, hair, whiskers, and detailed structure like that skeleton.
+
+# Model Notes
+
+Below models are released:
+
+1. ``
