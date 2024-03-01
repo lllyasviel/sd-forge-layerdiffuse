@@ -20,11 +20,17 @@ You can see that the native transparent diffusion can process transparent glass,
 
 Note that all currently released models are for SDXL. Models for SD1.5 may be provided later if demanded.
 
+Note that in this extension, all model downloads/selection are fully automatic. In fact, you do not need to know those models if you only use them.
+
 Below models are released:
 
-1. `layer_xl_transparent_attn.safetensors`
-2. `layer_xl_transparent_conv.safetensors`
-3. `layer_xl_fg2ble.safetensors`
-4. `layer_xl_fgble2bg.safetensors`
-5. `layer_xl_bg2ble.safetensors`
-6. `layer_xl_bgble2fg.safetensors`
+1. `layer_xl_transparent_attn.safetensors` This is a rank-256 LoRA to turn a SDXL into a transparent image generator. It will change the latent distribution of the model to a "transparent latent space" that can be decoded by the special VAE pipeline.
+2. `layer_xl_transparent_conv.safetensors` This is an alternative model to turn your SDXL into a transparent image generator. This safetensors file includes an offset of all conv layers (and actually, all layers that are not q,k,v of any attention layers). These offsets can be merged to any XL model to change the latent distribution to transparent images. Because we excluded the offset training of any q,k,v layers, the prompt understanding of SDXL should be perfectly preserved. However, in practice, I find the `layer_xl_transparent_attn.safetensors` will lead to better results. This `layer_xl_transparent_conv.safetensors` is still included for some special use cases that needs special prompt understanding. Also, this model may introduce a strong style influence to the base model.
+3. `layer_xl_fg2ble.safetensors` This is a safetensors file includes offsets to turn a SDXL into a layer generating model, that is conditioned on foregrounds, and generates blended compositions.
+4. `layer_xl_fgble2bg.safetensors` This is a safetensors file includes offsets to turn a SDXL into a layer generating model, that is conditioned on foregrounds and blended compositions, and generates backgrounds.
+5. `layer_xl_bg2ble.safetensors` This is a safetensors file includes offsets to turn a SDXL into a layer generating model, that is conditioned on backgrounds, and generates blended compositions.
+6. `layer_xl_bgble2fg.safetensors` This is a safetensors file includes offsets to turn a SDXL into a layer generating model, that is conditioned on backgrounds and blended compositions, and generates foregrounds.
+7. `vae_transparent_encoder.safetensors` This is an image encoder to extract a latent offset from pixel space. The offset can be added to latent images to help the diffusion of transparency. Note that in the paper we used a relatively heavy model with exactly same amount of parameters as the SD VAE. The released model is more light weighted, requires much less vram, and does not influence result quality in my tests.
+8. `vae_transparent_decoder.safetensors` This is an image decoder that takes SD VAE outputs and latent image as inputs, and outputs a real PNG image. The model architecture is also more lightweight than the paper version to reduce VRAM requirement. I have made sure that the reduced parameters does not influence result quality.
+
+Below models may be released soon (if necessary):
