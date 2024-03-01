@@ -163,4 +163,49 @@ Also you can see that the current model is about 680MB and in particular I think
 
 # Foreground Condition
 
+First we generate a dog
+
+a dog sitting, high quality
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x1152, Model hash: 1fe6c7ec54, Model: juggernautXL_version6Rundiffusion, layerdiffusion_enabled: True, layerdiffusion_method: Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: True, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, Version: f0.0.17v1.8.0rc-latest-269-gef35383b
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/dd515df4-cc58-47e0-8fe0-89e21e8320c4)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/e2785fd4-c168-4062-ae2f-010540ff0991)
+
+then change to `From Foreground to Blending` and drag the transparent image to foreground input.
+
+Note that you drag the real transparent image, not the visualization with checkboard background. Make sure tou see this
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/b912e1e8-7511-4afc-aa61-4bb31d6949f7)
+
+then do this
+
+a dog sitting in room, high quality
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x1152, Model hash: 1fe6c7ec54, Model: juggernautXL_version6Rundiffusion, layerdiffusion_enabled: True, layerdiffusion_method: From Foreground to Blending, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: True, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, Version: f0.0.17v1.8.0rc-latest-269-gef35383b
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/0b2abb76-56b9-448d-8f2a-8572a18c759b)
+
+Then change mode, drag your image, so that
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/48667cbf-e460-4037-b059-a30580841bcd)
+
+(Note that here I set stop at as 0.5 to get better results since I do not need the bg to be exactly same)
+
+Then change the sampler to Euler A or UniPC or some other sampler that is not dpm (This is probably because of some difference between diffusers training script and webui's k-diffusion. I am still looking into this and may revise my training script and model very soon so that this step will be removed.)
+
+then do this
+
+room, high quality
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: UniPC, CFG scale: 7, Seed: 12345, Size: 896x1152, Model hash: 1fe6c7ec54, Model: juggernautXL_version6Rundiffusion, layerdiffusion_enabled: True, layerdiffusion_method: From Foreground and Blending to Background, layerdiffusion_weight: 1, layerdiffusion_ending_step: 0.5, layerdiffusion_fg_image: True, layerdiffusion_bg_image: False, layerdiffusion_blend_image: True, layerdiffusion_resize_mode: Crop and Resize, Version: f0.0.17v1.8.0rc-latest-269-gef35383b
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/5f5a5b6a-7dd2-4e16-9571-1458a9ef465d)
 
