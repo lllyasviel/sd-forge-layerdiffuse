@@ -49,8 +49,51 @@ The two used models are:
 1. https://civitai.com/models/133005?modelVersionId=198530 Juggernaut XL V6 (note that the used one is **V6**, not v7 or v8 or V9)
 2. https://civitai.com/models/261336?modelVersionId=295158 anima_pencil-XL 1.0.0 (note that the used one is **1.0.0**, not 1.5.0)
 
-![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/5b85b383-89c0-403e-aa07-d6e43ff3b8ae)
-
-
 We will first test transparent image generating. Set your extension to this:
 
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/5b85b383-89c0-403e-aa07-d6e43ff3b8ae)
+
+an apple, high quality
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 5, Seed: 12345, Size: 1024x1024, Model hash: 1fe6c7ec54, Model: juggernautXL_version6Rundiffusion, layerdiffusion_enabled: True, layerdiffusion_method: Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, Version: f0.0.17v1.8.0rc-latest-269-gef35383b
+
+Make sure that you get this apple
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/376fa8bc-547e-4cd7-b658-7d60f2e37f1d)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/16efc57b-4da8-4227-a257-f45f3dfeaddc)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/38ace070-6530-43c9-9ca1-c98aa5b7a0ed)
+
+woman, messy hair, high quality
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 5, Seed: 12345, Size: 1024x1024, Model hash: 1fe6c7ec54, Model: juggernautXL_version6Rundiffusion, layerdiffusion_enabled: True, layerdiffusion_method: Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, Version: f0.0.17v1.8.0rc-latest-269-gef35383b
+
+Make sure that you get the woman with hair as messy as this
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/17c86ba5-eb29-45d4-b708-caf7e836b509)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/6f1ef595-255c-4162-bdf9-c8e4eb321f31)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/ec6de758-e996-4d1e-9a5a-8414f610e1af)
+
+
+a cup made of glass, high quality
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 5, Seed: 12345, Size: 1024x1024, Model hash: 1fe6c7ec54, Model: juggernautXL_version6Rundiffusion, layerdiffusion_enabled: True, layerdiffusion_method: Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, Version: f0.0.17v1.8.0rc-latest-269-gef35383b
+
+Make sure that you get this cup
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/a99177e6-72ed-447b-b2a5-6ca0fe1dc105)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/3b7df3f3-c6c1-401d-afa8-5a1c404165c9)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/72e0031d-848f-4923-8d56-2aef0381d8f1)
+
+OK then lets move on to a bit longer prompt:
