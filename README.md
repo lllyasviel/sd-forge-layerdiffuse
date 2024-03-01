@@ -160,3 +160,7 @@ Or you can use old inpainting tech to perform foreground removal on any image to
 Two steps allows for more flexible editing. We will release the one-step model soon if necessary, but that model is 2x larger and requires 4x larger VRAM, and we are still working on reducing the computation requirement of that model. (But in my tests, the current solution is better than that model in most cases.)
 
 Also you can see that the current model is about 680MB and in particular I think it is a bit too lightweight and will soon release a relatively heavier model for potential stronger structure understanding (but that is still under experiments).
+
+# Foreground Condition
+
+
