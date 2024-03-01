@@ -79,9 +79,6 @@ Make sure that you get the woman with hair as messy as this
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/6f1ef595-255c-4162-bdf9-c8e4eb321f31)
 
-![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/ec6de758-e996-4d1e-9a5a-8414f610e1af)
-
-
 a cup made of glass, high quality
 
 Negative prompt: bad, ugly
@@ -93,8 +90,6 @@ Make sure that you get this cup
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/a99177e6-72ed-447b-b2a5-6ca0fe1dc105)
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/3b7df3f3-c6c1-401d-afa8-5a1c404165c9)
-
-![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/72e0031d-848f-4923-8d56-2aef0381d8f1)
 
 OK then lets move on to a bit longer prompt:
 
@@ -109,6 +104,3 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/845c0e35-0096-484b-be2c-d443b4dc63cd)
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/47ee7ba1-7f64-4e27-857f-c82c9d2bbb14)
-
-![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/ee6f80e4-7c97-4d0b-816e-69eb2e0e8646)
-
