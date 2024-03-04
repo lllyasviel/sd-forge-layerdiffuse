@@ -37,6 +37,12 @@ Below models are released:
 7. `vae_transparent_encoder.safetensors` This is an image encoder to extract a latent offset from pixel space. The offset can be added to latent images to help the diffusion of transparency. Note that in the paper we used a relatively heavy model with exactly same amount of parameters as the SD VAE. The released model is more light weighted, requires much less vram, and does not influence result quality in my tests.
 8. `vae_transparent_decoder.safetensors` This is an image decoder that takes SD VAE outputs and latent image as inputs, and outputs a real PNG image. The model architecture is also more lightweight than the paper version to reduce VRAM requirement. I have made sure that the reduced parameters does not influence result quality.
 
+Update (Mar 4) - Below models will be released soon:
+
+1. Joint foreground-background generating model. The model will be 3x slower and requires 3.5x more VRAM, but will generate foregrounds and backgrounds together in one single pass.
+2. One step foreground-conditioned background model. The model will be 2x slower and requires 2.5x more VRAM, but will generate cleaner backgrounds in one single pass (compared to the released two-step models).
+3. One step background-conditioned foreground model. The model will be 2x slower and requires 2.5x more VRAM, but will generate cleaner foregrounds in one single pass (compared to the released two-step models).
+
 Below models may be released soon (if necessary):
 
 1. A model that can generate foreground and background together (using attention sharing similar to AnimateDiff). I put this model on hold because of these reasons: (1) the other released models can already achieve all functionalities and this model does not bring more functionalities. (2) the inference speed of this model is 3x slower than others and requires 4x more VRAM than other released model, and I am working on reducing the VRAM of this model if necessary. (3) This model will involve more hyperparameters and if demanded, I will investigate the best practice for inference/training before release it. **this model is confirmed to be released soon with joint layer generating and one-step bg/fg-condition, after we finish the final VRAM optimization**
