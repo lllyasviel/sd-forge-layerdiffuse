@@ -35,7 +35,7 @@ Below models are released:
 7. `vae_transparent_encoder.safetensors` This is an image encoder to extract a latent offset from pixel space. The offset can be added to latent images to help the diffusion of transparency. Note that in the paper we used a relatively heavy model with exactly same amount of parameters as the SD VAE. The released model is more light weighted, requires much less vram, and does not influence result quality in my tests.
 8. `vae_transparent_decoder.safetensors` This is an image decoder that takes SD VAE outputs and latent image as inputs, and outputs a real PNG image. The model architecture is also more lightweight than the paper version to reduce VRAM requirement. I have made sure that the reduced parameters does not influence result quality.
 
-Update (Mar 4) - Below models will be released soon:
+(Update Mar 4) Below models will be released soon:
 
 1. Joint foreground-background generating model. The model will be 3x slower and requires 3.5x more VRAM, but will generate foregrounds and backgrounds together in one single pass.
 2. One step foreground-conditioned background model. The model will be 2x slower and requires 2.5x more VRAM, but will generate cleaner backgrounds in one single pass (compared to the released two-step models).
