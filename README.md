@@ -1,6 +1,4 @@
-# sd-forge-layerdiffusion
-
-*(update Feb29: the name of this repo will change to "sd-forge-layerdiffuse" at Mar 3)*
+# sd-forge-layerdiffuse
 
 Transparent Image Layer Diffusion using Latent Transparency
 
