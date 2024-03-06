@@ -37,9 +37,10 @@ Below models are released:
 
 (Update Mar 4) Below models will be released soon:
 
-1. Joint foreground-background generating model. The model will be 3x slower and requires 3.5x more VRAM, but will generate foregrounds and backgrounds together in one single pass.
-2. One step foreground-conditioned background model. The model will be 2x slower and requires 2.5x more VRAM, but will generate cleaner backgrounds in one single pass (compared to the released two-step models).
-3. One step background-conditioned foreground model. The model will be 2x slower and requires 2.5x more VRAM, but will generate cleaner foregrounds in one single pass (compared to the released two-step models).
+1. Joint foreground-background generating model. The SDXL model will be 3x slower and requires 3.5x more VRAM, but will generate foregrounds and backgrounds together in one single pass. (SD1.5 models will also be released and SD1.5 models are very fast and do not much performance problems.)
+2. One step foreground-conditioned background model. The SDXL model will be 2x slower and requires 2.5x more VRAM, but will generate cleaner backgrounds in one single pass (compared to the released two-step models). (SD1.5 models will also be released and SD1.5 models are very fast and do not much performance problems.)
+3. One step background-conditioned foreground model. The SDXL model will be 2x slower and requires 2.5x more VRAM, but will generate cleaner foregrounds in one single pass (compared to the released two-step models). (SD1.5 models will also be released and SD1.5 models are very fast and do not much performance problems.)
+4. SD1.5 models.
 
 Below models may be released soon (if necessary):
 
