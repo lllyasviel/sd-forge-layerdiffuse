@@ -262,9 +262,13 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, M
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/dba41ac5-07da-4036-a043-3605faf9d2e1)
 
-(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bg and fg with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
-
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/903c62ec-0f8e-49ef-b58a-1c098b200e0c)
+
+Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bg and fg with any other software, or wait us to provide a simple UI for simple blending of some png elements.
+
+For example this is a real blending using photopea
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/baa0342d-55cb-49ca-887c-ab42d1873eb0)
 
 Another example
 
@@ -276,7 +280,7 @@ Input:
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/cb7c7c82-d03d-460c-a634-39d6d5248510)
 
-(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bg and fg with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
+Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bg and fg with any other software, or wait us to provide a simple UI for simple blending of some png elements.
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/8bf5d6bd-fcd5-41d6-b0fc-2f6f0e58cbb7)
 
