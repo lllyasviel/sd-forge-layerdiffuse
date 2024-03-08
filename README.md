@@ -146,6 +146,14 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 
 The tested model is [realisticVisionV51_v51VAE](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/realisticVisionV51_v51VAE.safetensors). We highly encourage you to go through the sanity check and get exactly same results (so that if any problem occurs, we will know if the problem is on our side).
 
+an apple, 4k, high quality
+Negative prompt: bad, ugly
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x512, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/d377d1b4-5c53-4bda-8639-5420ff7218ca)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/5e74c1ac-2940-47b3-b8c9-2e314c05c21e)
+
 ### Generating Foregrounds and Backgrounds Together (SD1.5)
 
 ### Background Condition (SD1.5, one step workflow)
