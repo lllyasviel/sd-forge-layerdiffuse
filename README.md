@@ -216,9 +216,27 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x512, M
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/3fffcb75-0141-4617-b1f0-b6e242b8af9d)
 
-![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/617970b8-6296-4d88-8049-4a1cb4851ade)
+Some more examples
 
+high quality, 4k
+Negative prompt: nsfw, bad, ugly
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) Generate Everything Together, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: dog running, layerdiffusion_bg_additional_prompt: street, layerdiffusion_blend_additional_prompt: dog running in street, Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
 
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/e38672df-1333-4ece-82eb-26f579b62131)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/e1eeb4c2-179e-45b7-aa08-55c7d89ed1ee)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/e713d8d6-c10e-4a50-b040-22e25a608c55)
+
+high quality, 4k
+Negative prompt: nsfw, bad, ugly
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) Generate Everything Together, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: a man sitting, layerdiffusion_bg_additional_prompt: chair, layerdiffusion_blend_additional_prompt: a man sitting on chair, Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/42cc92a4-67d0-4f30-b51c-9068f70750a0)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/7d3869d9-cfc5-448d-9932-85d422857231)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/bc3e7894-d3cb-4136-886d-8b4c0df4be21)
 
 ### Background Condition (SD1.5, one step workflow)
 
