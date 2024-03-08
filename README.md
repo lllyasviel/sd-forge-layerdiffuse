@@ -180,6 +180,46 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, M
 
 (this image is SD1.5 with very simple prompts and results can be much better with more prompt with SD15 quality tags, or with high-res fix coming soon)
 
+**Independent prompts for layers**
+
+In some cases, you may find that the background is corrupted by the global prompt. For example:
+
+an apple on table, high quality, 4k
+
+Negative prompt: nsfw, bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x512, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) Generate Everything Together, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/5f094232-68d7-458a-86ac-d28c2da506b2)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/c878d960-f034-46fb-a5f9-50a66eb18164)
+
+(We somewhat do not want the apples in the background and only want foreground apples)
+
+Then you can first remove all content part in the prompt
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/a62c9d49-a9e7-46d8-a857-2c29d6d4628c)
+
+and then write them for different layers, like this
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/6861aee7-ea59-4265-9256-6048e90b2f59)
+
+Then you will get
+
+high quality, 4k
+
+Negative prompt: nsfw, bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x512, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) Generate Everything Together, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: apple, layerdiffusion_bg_additional_prompt: floor in room, layerdiffusion_blend_additional_prompt: apple on floor in room, Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/1a7daa07-b5c1-482e-b85d-bc72860931d6)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/3fffcb75-0141-4617-b1f0-b6e242b8af9d)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/617970b8-6296-4d88-8049-4a1cb4851ade)
+
+
+
 ### Background Condition (SD1.5, one step workflow)
 
 ### Foreground Condition (SD1.5, one step workflow)
