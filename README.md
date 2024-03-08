@@ -161,7 +161,7 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x512, M
 
 This will allow you to generate all layers together in one single diffusion process.
 
-**Very important: Because this will generate 3 images together (the foreground, background, and blended image), your batchsize MUST be devided by 3. For example, you can use batch size 3 or 6 or 9 or 12 ... If you do not use batchsize number devided by 3, you will only get noise.**
+**Very important: Because this will generate 3 images together (the foreground, background, and blended image), your batchsize MUST be divided by 3. For example, you can use batch size 3 or 6 or 9 or 12 ... If you do not use batchsize number divided by 3, you will only get noise.**
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/4155bcd3-c33e-4a68-af14-087ac3df617a)
 
@@ -247,7 +247,7 @@ First download this image:
 
 In most cases, bg-to-fg does not need additional layer prompts. But you can add it if you wish
 
-**Very important: Because this will generate 2 images together (the foreground and blended image), your batchsize MUST be devided by 2. For example, you can use batch size 2 or 4 or 6 or 8 ... If you do not use batchsize number devided by 2, you will only get noise.**
+**Very important: Because this will generate 2 images together (the foreground and blended image), your batchsize MUST be divided by 2. For example, you can use batch size 2 or 4 or 6 or 8 ... If you do not use batchsize number divided by 2, you will only get noise.**
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/3fc7af63-6f87-40fb-b1d7-6a021668da41)
 
@@ -299,7 +299,7 @@ Then drag the real transparent foreground to UI
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/671ecf9c-b2d4-488e-bcf9-ac5a05c0b3bf)
 
-**Very important: Because this will generate 2 images together (the foreground and blended image), your batchsize MUST be devided by 2. For example, you can use batch size 2 or 4 or 6 or 8 ... If you do not use batchsize number devided by 2, you will only get noise.**
+**Very important: Because this will generate 2 images together (the foreground and blended image), your batchsize MUST be divided by 2. For example, you can use batch size 2 or 4 or 6 or 8 ... If you do not use batchsize number divided by 2, you will only get noise.**
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/3fc7af63-6f87-40fb-b1d7-6a021668da41)
 
