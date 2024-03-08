@@ -312,8 +312,47 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, M
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/30f446f8-cf2b-4040-94e0-ef01eb7bd577)
 
-
 ### Some More Complicated Examples for SD1.5
+
+Lets travel a bit more.
+
+First we get a man singing
+
+a man singing, high quality, 4k
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: True, layerdiffusion_bg_image: True, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/1cb18b88-fca7-4e2c-b7e7-993e460ce65f)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/1bbaeb76-6d36-4eaa-8ca8-d778d8a3e952)
+
+(then get a concert stage)
+
+concert stage, high quality, 4k
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) From Foreground to Background, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: True, layerdiffusion_bg_image: True, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/13d8e4dc-ce74-4db3-bf40-df2df83abac4)
+
+then drag to background
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/e44d1033-462c-4c0c-b8b8-d6d10dfd20b8)
+
+(Then get a portrait of michael)
+
+michael jackson, portrait, high quality, 4k
+
+Negative prompt: full body, nsfw, bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) From Background to Foreground, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: True, layerdiffusion_bg_image: True, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/4c09065b-45ab-491e-a1bb-86b8cc58ce1a)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/331e6027-3ab1-4c31-8730-517c45200b17)
 
 ### Background Condition (SDXL, two steps workflow)
 
