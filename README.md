@@ -50,6 +50,8 @@ Below models may be released soon (if necessary):
 
 # Sanity Check
 
+### SDXL
+
 We highly encourage you to go through the sanity check and get exactly same results (so that if any problem occurs, we will know if the problem is on our side).
 
 The two used models are:
@@ -139,7 +141,7 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 
 (I am not very good at writing prompts in the AnimagineXL format, and perhaps you can get better results with better prompts)
 
-### Background Condition
+### Background Condition (SDXL, two steps workflow)
 
 First download this image:
 
@@ -181,7 +183,7 @@ Two steps allows for more flexible editing. We will release the one-step model s
 
 Also you can see that the current model is about 680MB and in particular I think it is a bit too lightweight and will soon release a relatively heavier model for potential stronger structure understanding (but that is still under experiments).
 
-# Foreground Condition
+# Foreground Condition (SDXL, two steps workflow)
 
 First we generate a dog
 
