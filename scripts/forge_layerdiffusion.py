@@ -8,7 +8,7 @@ import copy
 from modules import scripts
 from modules.processing import StableDiffusionProcessing
 from lib_layerdiffusion.enums import ResizeMode
-from lib_layerdiffusion.utils import rgba2rgbfp32, to255unit8, crop_and_resize_image
+from lib_layerdiffusion.utils import rgba2rgbfp32, to255unit8, crop_and_resize_image, forge_clip_encode
 from enum import Enum
 from modules.paths import models_path
 from ldm_patched.modules.utils import load_torch_file
@@ -16,6 +16,8 @@ from lib_layerdiffusion.models import TransparentVAEDecoder, TransparentVAEEncod
 from ldm_patched.modules.model_management import current_loaded_models
 from modules_forge.forge_sampler import sampling_prepare
 from modules.modelloader import load_file_from_url
+from lib_layerdiffusion.attention_sharing import AttentionSharingPatcher
+from ldm_patched.modules import model_management
 
 
 def is_model_loaded(model):
@@ -25,18 +27,21 @@ def is_model_loaded(model):
 layer_model_root = os.path.join(models_path, 'layer_model')
 os.makedirs(layer_model_root, exist_ok=True)
 
-
 vae_transparent_encoder = None
 vae_transparent_decoder = None
 
 
 class LayerMethod(Enum):
-    FG_ONLY_ATTN = "Only Generate Transparent Image (Attention Injection)"
-    FG_ONLY_CONV = "Only Generate Transparent Image (Conv Injection)"
-    FG_TO_BLEND = "From Foreground to Blending"
-    FG_BLEND_TO_BG = "From Foreground and Blending to Background"
-    BG_TO_BLEND = "From Background to Blending"
-    BG_BLEND_TO_FG = "From Background and Blending to Foreground"
+    FG_ONLY_ATTN_SD15 = "(SD1.5) Only Generate Transparent Image (Attention Injection)"
+    FG_TO_BG_SD15 = "(SD1.5) From Foreground to Background"
+    BG_TO_FG_SD15 = "(SD1.5) From Background to Foreground"
+    JOINT_SD15 = "(SD1.5) Generate Everything Together"
+    FG_ONLY_ATTN = "(SDXL) Only Generate Transparent Image (Attention Injection)"
+    FG_ONLY_CONV = "(SDXL) Only Generate Transparent Image (Conv Injection)"
+    FG_TO_BLEND = "(SDXL) From Foreground to Blending"
+    FG_BLEND_TO_BG = "(SDXL) From Foreground and Blending to Background"
+    BG_TO_BLEND = "(SDXL) From Background to Blending"
+    BG_BLEND_TO_FG = "(SDXL) From Background and Blending to Foreground"
 
 
 @functools.lru_cache(maxsize=2)
@@ -66,29 +71,42 @@ class LayerDiffusionForForge(scripts.Script):
                 weight = gr.Slider(label=f"Weight", value=1.0, minimum=0.0, maximum=2.0, step=0.001)
                 ending_step = gr.Slider(label="Stop At", value=1.0, minimum=0.0, maximum=1.0)
 
+            fg_additional_prompt = gr.Textbox(placeholder="Additional prompt for foreground.", visible=False, label='Foreground Additional Prompt')
+            bg_additional_prompt = gr.Textbox(placeholder="Additional prompt for background.", visible=False, label='Background Additional Prompt')
+            blend_additional_prompt = gr.Textbox(placeholder="Additional prompt for blended image.", visible=False, label='Blended Additional Prompt')
+
             resize_mode = gr.Radio(choices=[e.value for e in ResizeMode], value=ResizeMode.CROP_AND_RESIZE.value, label="Resize Mode", type='value', visible=False)
             output_origin = gr.Checkbox(label='Output original mat for img2img', value=False, visible=False)
 
         def method_changed(m):
             m = LayerMethod(m)
 
+            if m == LayerMethod.FG_TO_BG_SD15:
+                return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=True), gr.update(visible=True)
+
+            if m == LayerMethod.BG_TO_FG_SD15:
+                return gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=True)
+
+            if m == LayerMethod.JOINT_SD15:
+                return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+
             if m == LayerMethod.FG_TO_BLEND:
-                return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True)
+                return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
             if m == LayerMethod.BG_TO_BLEND:
-                return gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), gr.update(visible=True)
+                return gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
             if m == LayerMethod.BG_BLEND_TO_FG:
-                return gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+                return gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
             if m == LayerMethod.FG_BLEND_TO_BG:
-                return gr.update(visible=True), gr.update(visible=False), gr.update(visible=True), gr.update(visible=True)
+                return gr.update(visible=True), gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
-            return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+            return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
-        method.change(method_changed, inputs=method, outputs=[fg_image, bg_image, blend_image, resize_mode], show_progress=False, queue=False)
+        method.change(method_changed, inputs=method, outputs=[fg_image, bg_image, blend_image, resize_mode, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt], show_progress=False, queue=False)
 
-        return enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin
+        return enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt
 
     def process_before_every_sampling(self, p: StableDiffusionProcessing, *script_args, **kwargs):
         global vae_transparent_decoder, vae_transparent_encoder
@@ -96,7 +114,7 @@ class LayerDiffusionForForge(scripts.Script):
         # This will be called before every sampling.
         # If you use highres fix, this will be called twice.
 
-        enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin = script_args
+        enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
 
         if not enabled:
             return
@@ -110,6 +128,9 @@ class LayerDiffusionForForge(scripts.Script):
             layerdiffusion_bg_image=bg_image is not None,
             layerdiffusion_blend_image=blend_image is not None,
             layerdiffusion_resize_mode=resize_mode,
+            layerdiffusion_fg_additional_prompt=fg_additional_prompt,
+            layerdiffusion_bg_additional_prompt=bg_additional_prompt,
+            layerdiffusion_blend_additional_prompt=blend_additional_prompt,
         ))
 
         B, C, H, W = kwargs['noise'].shape  # latent_shape
@@ -128,6 +149,7 @@ class LayerDiffusionForForge(scripts.Script):
         original_unet = p.sd_model.forge_objects.unet.clone()
         unet = p.sd_model.forge_objects.unet.clone()
         vae = p.sd_model.forge_objects.vae.clone()
+        clip = p.sd_model.forge_objects.clip
 
         if method in [LayerMethod.FG_ONLY_ATTN, LayerMethod.FG_ONLY_CONV, LayerMethod.BG_BLEND_TO_FG]:
             if vae_transparent_decoder is None:
@@ -148,17 +170,106 @@ class LayerDiffusionForForge(scripts.Script):
                 vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(model_path))
             vae_transparent_encoder.patch(p, vae.patcher)
 
-        if fg_image is not None:
-            fg_image = vae.encode(torch.from_numpy(np.ascontiguousarray(fg_image[None].copy())))
-            fg_image = unet.model.latent_format.process_in(fg_image)
+        if method in [LayerMethod.FG_ONLY_ATTN_SD15, LayerMethod.JOINT_SD15, LayerMethod.BG_TO_FG_SD15]:
+            if vae_transparent_decoder is None:
+                model_path = load_file_from_url(
+                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_vae_transparent_decoder.safetensors',
+                    model_dir=layer_model_root,
+                    file_name='layer_sd15_vae_transparent_decoder.safetensors'
+                )
+                vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(model_path))
+            if method == LayerMethod.JOINT_SD15:
+                vae_transparent_decoder.mod_number = 3
+            if method == LayerMethod.BG_TO_FG_SD15:
+                vae_transparent_decoder.mod_number = 2
+            vae_transparent_decoder.patch(p, vae.patcher, output_origin)
 
-        if bg_image is not None:
-            bg_image = vae.encode(torch.from_numpy(np.ascontiguousarray(bg_image[None].copy())))
-            bg_image = unet.model.latent_format.process_in(bg_image)
+            if vae_transparent_encoder is None:
+                model_path = load_file_from_url(
+                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_vae_transparent_encoder.safetensors',
+                    model_dir=layer_model_root,
+                    file_name='layer_sd15_vae_transparent_encoder.safetensors'
+                )
+                vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(model_path))
+            vae_transparent_encoder.patch(p, vae.patcher)
 
-        if blend_image is not None:
-            blend_image = vae.encode(torch.from_numpy(np.ascontiguousarray(blend_image[None].copy())))
-            blend_image = unet.model.latent_format.process_in(blend_image)
+        if method in [LayerMethod.FG_TO_BLEND, LayerMethod.FG_BLEND_TO_BG, LayerMethod.BG_TO_BLEND, LayerMethod.BG_BLEND_TO_FG]:
+            if fg_image is not None:
+                fg_image = vae.encode(torch.from_numpy(np.ascontiguousarray(fg_image[None].copy())))
+                fg_image = unet.model.latent_format.process_in(fg_image)
+
+            if bg_image is not None:
+                bg_image = vae.encode(torch.from_numpy(np.ascontiguousarray(bg_image[None].copy())))
+                bg_image = unet.model.latent_format.process_in(bg_image)
+
+            if blend_image is not None:
+                blend_image = vae.encode(torch.from_numpy(np.ascontiguousarray(blend_image[None].copy())))
+                blend_image = unet.model.latent_format.process_in(blend_image)
+
+        if method in [LayerMethod.FG_TO_BG_SD15, LayerMethod.BG_TO_FG_SD15]:
+            if fg_image is not None:
+                fg_image = torch.from_numpy(np.ascontiguousarray(fg_image[None].copy())).movedim(-1, 1)
+
+            if bg_image is not None:
+                bg_image = torch.from_numpy(np.ascontiguousarray(bg_image[None].copy())).movedim(-1, 1)
+
+            if blend_image is not None:
+                blend_image = torch.from_numpy(np.ascontiguousarray(blend_image[None].copy())).movedim(-1, 1)
+
+        if method == LayerMethod.FG_ONLY_ATTN_SD15:
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_transparent_attn.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_sd15_transparent_attn.safetensors'
+            )
+            layer_lora_model = load_layer_model_state_dict(model_path)
+            patcher = AttentionSharingPatcher(unet, frames=1, use_control=False)
+            patcher.load_state_dict(layer_lora_model, strict=True)
+
+        original_prompt = p.prompts[0]
+
+        fg_additional_prompt = fg_additional_prompt + ', ' + original_prompt if fg_additional_prompt != '' else None
+        bg_additional_prompt = bg_additional_prompt + ', ' + original_prompt if bg_additional_prompt != '' else None
+        blend_additional_prompt = blend_additional_prompt + ', ' + original_prompt if blend_additional_prompt != '' else None
+
+        fg_cond = forge_clip_encode(clip, fg_additional_prompt)
+        bg_cond = forge_clip_encode(clip, bg_additional_prompt)
+        blend_cond = forge_clip_encode(clip, blend_additional_prompt)
+
+        if method == LayerMethod.JOINT_SD15:
+            unet.set_transformer_option('cond_overwrite', [fg_cond, bg_cond, blend_cond])
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_joint.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_sd15_joint.safetensors'
+            )
+            layer_lora_model = load_layer_model_state_dict(model_path)
+            patcher = AttentionSharingPatcher(unet, frames=3, use_control=False)
+            patcher.load_state_dict(layer_lora_model, strict=True)
+
+        if method == LayerMethod.FG_TO_BG_SD15:
+            unet.set_transformer_option('cond_overwrite', [bg_cond, blend_cond])
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_fg2bg.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_sd15_fg2bg.safetensors'
+            )
+            layer_lora_model = load_layer_model_state_dict(model_path)
+            patcher = AttentionSharingPatcher(unet, frames=2, use_control=True)
+            patcher.load_state_dict(layer_lora_model, strict=True)
+            patcher.set_control(fg_image)
+
+        if method == LayerMethod.BG_TO_FG_SD15:
+            unet.set_transformer_option('cond_overwrite', [fg_cond, blend_cond])
+            model_path = load_file_from_url(
+                url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_bg2fg.safetensors',
+                model_dir=layer_model_root,
+                file_name='layer_sd15_bg2fg.safetensors'
+            )
+            layer_lora_model = load_layer_model_state_dict(model_path)
+            patcher = AttentionSharingPatcher(unet, frames=2, use_control=True)
+            patcher.load_state_dict(layer_lora_model, strict=True)
+            patcher.set_control(bg_image)
 
         if method == LayerMethod.FG_ONLY_ATTN:
             model_path = load_file_from_url(
@@ -230,7 +341,7 @@ class LayerDiffusionForForge(scripts.Script):
             return cond
 
         def conditioning_modifier(model, x, timestep, uncond, cond, cond_scale, model_options, seed):
-            if timestep < sigma_end:
+            if timestep[0].item() < sigma_end:
                 if not is_model_loaded(original_unet):
                     sampling_prepare(original_unet, x)
                 target_model = original_unet.model

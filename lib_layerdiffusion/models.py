@@ -184,7 +184,7 @@ def checkerboard(shape):
 
 
 class TransparentVAEDecoder:
-    def __init__(self, sd):
+    def __init__(self, sd, mod_number=1):
         self.load_device = model_management.get_torch_device()
         self.offload_device = model_management.unet_offload_device()
         self.dtype = torch.float16 if model_management.should_use_fp16(self.load_device) else torch.float32
@@ -195,6 +195,7 @@ class TransparentVAEDecoder:
         model.eval()
 
         self.model = ModelPatcher(model, load_device=self.load_device, offload_device=self.offload_device)
+        self.mod_number = mod_number
         return
 
     @torch.no_grad()
@@ -244,28 +245,35 @@ class TransparentVAEDecoder:
                     p.extra_result_images.append(png)
 
             latent = latent.to(device=self.load_device, dtype=self.dtype)
-
             model_management.load_model_gpu(self.model)
-            y = self.estimate_augmented(pixel, latent)
+            vis_list = []
 
-            y = y.clip(0, 1).movedim(1, -1)
-            alpha = y[..., :1]
-            fg = y[..., 1:]
+            for i in range(int(latent.shape[0])):
+                if self.mod_number != 1 and i % self.mod_number != 0:
+                    vis_list.append(pixel[i:i+1].movedim(1, -1))
+                    continue
 
-            B, H, W, C = fg.shape
-            cb = checkerboard(shape=(H // 64, W // 64))
-            cb = cv2.resize(cb, (W, H), interpolation=cv2.INTER_NEAREST)
-            cb = (0.5 + (cb - 0.5) * 0.1)[None, ..., None]
-            cb = torch.from_numpy(cb).to(fg)
+                y = self.estimate_augmented(pixel[i:i+1], latent[i:i+1])
 
-            vis = fg * alpha + cb * (1 - alpha)
+                y = y.clip(0, 1).movedim(1, -1)
+                alpha = y[..., :1]
+                fg = y[..., 1:]
 
-            pngs = torch.cat([fg, alpha], dim=3)
-            pngs = (pngs * 255.0).detach().cpu().float().numpy().clip(0, 255).astype(np.uint8)
-            for png in pngs:
+                B, H, W, C = fg.shape
+                cb = checkerboard(shape=(H // 64, W // 64))
+                cb = cv2.resize(cb, (W, H), interpolation=cv2.INTER_NEAREST)
+                cb = (0.5 + (cb - 0.5) * 0.1)[None, ..., None]
+                cb = torch.from_numpy(cb).to(fg)
+
+                vis = fg * alpha + cb * (1 - alpha)
+                vis_list.append(vis)
+
+                png = torch.cat([fg, alpha], dim=3)[0]
+                png = (png * 255.0).detach().cpu().float().numpy().clip(0, 255).astype(np.uint8)
                 p.extra_result_images.append(png)
 
-            return vis
+            vis_list = torch.cat(vis_list, dim=0)
+            return vis_list
 
         vae_patcher.set_model_vae_decode_wrapper(wrapper)
         return
