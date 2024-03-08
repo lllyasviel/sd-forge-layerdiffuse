@@ -282,6 +282,33 @@ Input:
 
 ### Foreground Condition (SD1.5, one step workflow)
 
+We first generate a cat
+
+a cat running, high quality, 4k
+
+Negative prompt: nsfw, bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: True, layerdiffusion_bg_image: True, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/4d39ab96-94d6-48eb-bd45-709f9ef25ec2)
+
+Then drag the real transparent foreground to UI
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/671ecf9c-b2d4-488e-bcf9-ac5a05c0b3bf)
+
+**Very important: Bexause this will generate 2 images together (the foreground and blended image), your batchsize MUST be devided by 2. For example, you can use batch size 2 or 4 or 6 or 8 ... If you do not use batchsize number devided by 2, you will only get noise.**
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/3fc7af63-6f87-40fb-b1d7-6a021668da41)
+
+street, high quality, 4k
+
+Negative prompt: nsfw, bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) From Foreground to Background, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: True, layerdiffusion_bg_image: True, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/30f446f8-cf2b-4040-94e0-ef01eb7bd577)
+
+
 ### Some More Complicated Examples for SD1.5
 
 ### Background Condition (SDXL, two steps workflow)
