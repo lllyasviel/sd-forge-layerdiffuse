@@ -143,7 +143,13 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 
 ### SD1.5
 
+### Generating Foregrounds and Backgrounds Together (SD1.5)
 
+### Background Condition (SD1.5, one step workflow)
+
+### Foreground Condition (SD1.5, one step workflow)
+
+### Some More Complicated Examples for SD1.5
 
 ### Background Condition (SDXL, two steps workflow)
 
