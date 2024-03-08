@@ -246,7 +246,7 @@ First download this image:
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/e7e2d80e-ffbe-4724-812a-5139a88027e3)
 
-In most cases, bf-to-fg does not need additional layer prompts. But you can add it if you wish
+In most cases, bg-to-fg does not need additional layer prompts. But you can add it if you wish
 
 **Very important: Bexause this will generate 2 images together (the foreground and blended image), your batchsize MUST be devided by 2. For example, you can use batch size 2 or 4 or 6 or 8 ... If you do not use batchsize number devided by 2, you will only get noise.**
 
@@ -262,7 +262,7 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, M
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/dba41ac5-07da-4036-a043-3605faf9d2e1)
 
-(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bf and fg with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
+(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bg and fg with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/903c62ec-0f8e-49ef-b58a-1c098b200e0c)
 
@@ -276,7 +276,7 @@ Input:
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/cb7c7c82-d03d-460c-a634-39d6d5248510)
 
-(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bf and bf with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
+(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bg and fg with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/8bf5d6bd-fcd5-41d6-b0fc-2f6f0e58cbb7)
 
