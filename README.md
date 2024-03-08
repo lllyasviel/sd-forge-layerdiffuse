@@ -144,6 +144,8 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 
 ### SD1.5
 
+The tested model is [realisticVisionV51_v51VAE](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/realisticVisionV51_v51VAE.safetensors). We highly encourage you to go through the sanity check and get exactly same results (so that if any problem occurs, we will know if the problem is on our side).
+
 ### Generating Foregrounds and Backgrounds Together (SD1.5)
 
 ### Background Condition (SD1.5, one step workflow)
@@ -190,7 +192,7 @@ Or you can use old inpainting tech to perform foreground removal on any image to
 
 *Wait. Why you generate it with two steps? Can I generate it with one pass?*
 
-Two steps allows for more flexible editing. We will release the one-step model soon if necessary, but that model is 2x larger and requires 4x larger VRAM, and we are still working on reducing the computation requirement of that model. (But in my tests, the current solution is better than that model in most cases.)
+Two steps allows for more flexible editing. We will release the one-step model soon for SDXL. Also, note that the one-step model for SD1.5 is already released.
 
 Also you can see that the current model is about 680MB and in particular I think it is a bit too lightweight and will soon release a relatively heavier model for potential stronger structure understanding (but that is still under experiments).
 
@@ -242,3 +244,4 @@ Steps: 20, Sampler: UniPC, CFG scale: 7, Seed: 12345, Size: 896x1152, Model hash
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/5f5a5b6a-7dd2-4e16-9571-1458a9ef465d)
 
+Note that this is a two-step workflow. We will release the one-step model soon for SDXL. Also, note that the one-step model for SD1.5 is already released.
