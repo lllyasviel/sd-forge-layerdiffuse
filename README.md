@@ -141,6 +141,10 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 
 (I am not very good at writing prompts in the AnimagineXL format, and perhaps you can get better results with better prompts)
 
+### SD1.5
+
+
+
 ### Background Condition (SDXL, two steps workflow)
 
 First download this image:
