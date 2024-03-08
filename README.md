@@ -178,7 +178,7 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, M
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/e32a5a44-902b-4f2b-bdfa-2025bf07619a)
 
-(Note that the third image is encoded/decoded by VAE and diffusion process so it may be different to the fg/bg. To get perfectly same fg/bg, you can blend the real bf and bf with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
+(Note that the third image is encoded/decoded by VAE and diffusion process so it may be different to the fg/bg. To get perfectly same fg/bg, you can blend the real bf and fg with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
 
 (this image is SD1.5 with very simple prompts and results can be much better with more prompt with SD15 quality tags, or with high-res fix coming soon)
 
@@ -262,7 +262,7 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, M
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/dba41ac5-07da-4036-a043-3605faf9d2e1)
 
-(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bf and bf with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
+(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bf and fg with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/903c62ec-0f8e-49ef-b58a-1c098b200e0c)
 
@@ -279,7 +279,6 @@ Input:
 (Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bf and bf with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/8bf5d6bd-fcd5-41d6-b0fc-2f6f0e58cbb7)
-
 
 ### Foreground Condition (SD1.5, one step workflow)
 
