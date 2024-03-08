@@ -164,6 +164,8 @@ This will allow you to generate all layers together in one single diffusion proc
 
 **Very important: Bexause this will generate 3 images together (the foreground, background, and blended image), your batchsize MUST be devided by 3. For example, you can use batch size 3 or 6 or 9 or 12 ... If you do not use batchsize number devided by 3, you will only get noise.**
 
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/4155bcd3-c33e-4a68-af14-087ac3df617a)
+
 man walking, 4k, high quality
 
 Negative prompt: bad, ugly
@@ -239,6 +241,45 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, M
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/bc3e7894-d3cb-4136-886d-8b4c0df4be21)
 
 ### Background Condition (SD1.5, one step workflow)
+
+First download this image:
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/e7e2d80e-ffbe-4724-812a-5139a88027e3)
+
+In most cases, bf-to-fg does not need additional layer prompts. But you can add it if you wish
+
+**Very important: Bexause this will generate 2 images together (the foreground and blended image), your batchsize MUST be devided by 2. For example, you can use batch size 2 or 4 or 6 or 8 ... If you do not use batchsize number devided by 2, you will only get noise.**
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/3fc7af63-6f87-40fb-b1d7-6a021668da41)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/29352421-d5ce-4442-86f5-b35aee1d67cb)
+
+an old man sitting, high quality, 4k
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) From Background to Foreground, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: True, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/dba41ac5-07da-4036-a043-3605faf9d2e1)
+
+(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bf and bf with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/903c62ec-0f8e-49ef-b58a-1c098b200e0c)
+
+Another example
+
+Input:
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/c4110feb-7e70-455b-88a9-04e868dab0de)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/7d2e1351-d0af-4c5b-87f0-ac6331b9172d)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/cb7c7c82-d03d-460c-a634-39d6d5248510)
+
+(Note that the second image is a visualization that will have color differences. To get perfectly same fg/bg, you can blend the real bf and bf with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/8bf5d6bd-fcd5-41d6-b0fc-2f6f0e58cbb7)
+
 
 ### Foreground Condition (SD1.5, one step workflow)
 
