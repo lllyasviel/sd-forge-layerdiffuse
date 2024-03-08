@@ -33,9 +33,9 @@ vae_transparent_decoder = None
 
 class LayerMethod(Enum):
     FG_ONLY_ATTN_SD15 = "(SD1.5) Only Generate Transparent Image (Attention Injection)"
-    FG_TO_BG_SD15 = "(SD1.5) From Foreground to Background"
-    BG_TO_FG_SD15 = "(SD1.5) From Background to Foreground"
-    JOINT_SD15 = "(SD1.5) Generate Everything Together"
+    FG_TO_BG_SD15 = "(SD1.5) From Foreground to Background (need batch size 2)"
+    BG_TO_FG_SD15 = "(SD1.5) From Background to Foreground (need batch size 2)"
+    JOINT_SD15 = "(SD1.5) Generate Everything Together (need batch size 3)"
     FG_ONLY_ATTN = "(SDXL) Only Generate Transparent Image (Attention Injection)"
     FG_ONLY_CONV = "(SDXL) Only Generate Transparent Image (Conv Injection)"
     FG_TO_BLEND = "(SDXL) From Foreground to Blending"
