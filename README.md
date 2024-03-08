@@ -147,7 +147,9 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 The tested model is [realisticVisionV51_v51VAE](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/realisticVisionV51_v51VAE.safetensors). We highly encourage you to go through the sanity check and get exactly same results (so that if any problem occurs, we will know if the problem is on our side).
 
 an apple, 4k, high quality
+
 Negative prompt: bad, ugly
+
 Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x512, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) Only Generate Transparent Image (Attention Injection), layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/d377d1b4-5c53-4bda-8639-5420ff7218ca)
@@ -155,6 +157,28 @@ Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x512, M
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/5e74c1ac-2940-47b3-b8c9-2e314c05c21e)
 
 ### Generating Foregrounds and Backgrounds Together (SD1.5)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/c4e9dab3-8038-4f45-a3c0-96e2ee0f46dc)
+
+This will allow you to generate all layers together in one single diffusion process.
+
+**Very important: Bexause this will generate 3 images together (the foreground, background, and blended image), your batchsize MUST be devided by 3. For example, you can use batch size 3 or 6 or 9 or 12 ... If you do not use batchsize number devided by 3, you will only get noise.**
+
+man walking, 4k, high quality
+
+Negative prompt: bad, ugly
+
+Steps: 20, Sampler: DPM++ 2M Karras, CFG scale: 7, Seed: 12345, Size: 512x640, Model hash: 15012c538f, Model: realisticVisionV51_v51VAE, layerdiffusion_enabled: True, layerdiffusion_method: (SD1.5) Generate Everything Together, layerdiffusion_weight: 1, layerdiffusion_ending_step: 1, layerdiffusion_fg_image: False, layerdiffusion_bg_image: False, layerdiffusion_blend_image: False, layerdiffusion_resize_mode: Crop and Resize, layerdiffusion_fg_additional_prompt: , layerdiffusion_bg_additional_prompt: , layerdiffusion_blend_additional_prompt: , Version: f0.0.17v1.8.0rc-latest-276-g29be1da7
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/bc66ca16-6f7b-40ab-b7ea-265582913667)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/f5b45ffe-5275-47dd-9a77-2a6fac3a8b2d)
+
+![image](https://github.com/layerdiffusion/sd-forge-layerdiffuse/assets/161511761/e32a5a44-902b-4f2b-bdfa-2025bf07619a)
+
+(Note that the third image is encoded/decoded by VAE and diffusion process so it may be different to the fg/bg. To get perfectly same fg/bg, you can blend the real bf and bf with any other software, or wait us to provide a simple UI for simple blending of some png elements.)
+
+(this image is SD1.5 with very simple prompts and results can be much better with more prompt with SD15 quality tags, or with high-res fix coming soon)
 
 ### Background Condition (SD1.5, one step workflow)
 
