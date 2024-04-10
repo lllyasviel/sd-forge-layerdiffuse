@@ -17,7 +17,7 @@ def forge_clip_encode(clip, text):
 
 def rgba2rgbfp32(x):
     if not isinstance(x, np.ndarray):
-        x = np.array(api.decode_base64_to_image(x)).astype('uint8')
+        x = np.array(api.decode_base64_to_image(x).convert('RGBA'))
     rgb = x[..., :3].astype(np.float32) / 255.0
     a = x[..., 3:4].astype(np.float32) / 255.0
     return 0.5 + (rgb - 0.5) * a
