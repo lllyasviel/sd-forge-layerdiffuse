@@ -388,18 +388,23 @@ class LayerDiffusionForForge(scripts.Script):
         if processed.images is not None and len(processed.images) > 0:
             images_copy = processed.images[:]
 
-            if len(processed.extra_images) != len(processed.images):
+            if len(processed.extra_images) != len(processed.images) and len(images_copy) != 1 :
                 # Batch Process.
                 images_copy.pop(0)
-                # if self.generatedCount % 2 == 0:
-                #     images_copy.reverse()
-                #     print("reverse.")
 
             extra_images = processed.extra_images
-            pil_images = [Image.fromarray(img, 'RGBA') for img in extra_images]
+
+            pil_images = []
+            for img in extra_images:
+                if img.shape[2] == 3:  # RGB
+                    pil_image = Image.fromarray(img, 'RGB')
+                    pil_image = pil_image.convert("RGBA")
+                elif img.shape[2] == 4:  # RGBA
+                    pil_image = Image.fromarray(img, 'RGBA')
+                pil_images.append(pil_image)
+
 
             for image_a, image_b in zip(pil_images, images_copy):
-
                 image_b = image_b.convert("RGBA")
                 
                 # Create alpha mask with strict threshold
@@ -419,6 +424,7 @@ class LayerDiffusionForForge(scripts.Script):
                 # Combine the new RGB channels with the original alpha channel of image_b
                 final_image = Image.merge("RGBA", (r_final, g_final, b_final, a_a))
                 
+                print("save rebuild.")
                 # Save the result
                 images.save_image(
                     image=final_image,
