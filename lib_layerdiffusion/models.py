@@ -3,6 +3,7 @@ import torch
 import cv2
 import numpy as np
 
+from PIL import Image
 from tqdm import tqdm
 from typing import Optional, Tuple
 from diffusers.configuration_utils import ConfigMixin, register_to_config
@@ -11,6 +12,8 @@ from diffusers.models.unet_2d_blocks import UNetMidBlock2D, get_down_block, get_
 import ldm_patched.modules.model_management as model_management
 from ldm_patched.modules.model_patcher import ModelPatcher
 
+from modules import images, processing
+from modules.shared import opts
 
 def zero_module(module):
     """
@@ -260,7 +263,7 @@ class TransparentVAEDecoder:
                 fg = y[..., 1:]
 
                 B, H, W, C = fg.shape
-                cb = checkerboard(shape=(H // 64, W // 64))
+                cb = checkerboard(shape=(H // 1, W // 1))
                 cb = cv2.resize(cb, (W, H), interpolation=cv2.INTER_NEAREST)
                 cb = (0.5 + (cb - 0.5) * 0.1)[None, ..., None]
                 cb = torch.from_numpy(cb).to(fg)
@@ -270,6 +273,23 @@ class TransparentVAEDecoder:
 
                 png = torch.cat([fg, alpha], dim=3)[0]
                 png = (png * 255.0).detach().cpu().float().numpy().clip(0, 255).astype(np.uint8)
+
+                # Save transparent image code.
+                xpng = Image.fromarray(png)
+
+                infotext = processing.Processed(p, []).infotext(p, i)
+                images.save_image(
+                    image=xpng,
+                    path=p.outpath_samples,
+                    basename="",
+                    seed=p.seeds[i],
+                    prompt=p.prompts[i],
+                    extension=getattr(opts, 'samples_format', 'png'),
+                    info=infotext,
+                    p=p,
+                    suffix="-transparent"
+                )
+
                 p.extra_result_images.append(png)
 
             vis_list = torch.cat(vis_list, dim=0)
