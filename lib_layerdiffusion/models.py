@@ -237,7 +237,7 @@ class TransparentVAEDecoder:
         median = torch.median(result, dim=0).values
         return median
 
-    def patch(self, p, vae_patcher, output_origin):
+    def patch(self, p, vae_patcher, output_origin, transparentImages):
         @torch.no_grad()
         def wrapper(func, latent):
             pixel = func(latent).movedim(-1, 1).to(device=self.load_device, dtype=self.dtype)
@@ -278,6 +278,8 @@ class TransparentVAEDecoder:
                 xpng = Image.fromarray(png)
 
                 infotext = processing.Processed(p, []).infotext(p, i)
+
+                transparentImages.append(xpng)
                 images.save_image(
                     image=xpng,
                     path=p.outpath_samples,

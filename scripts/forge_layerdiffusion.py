@@ -55,6 +55,8 @@ def load_layer_model_state_dict(filename):
 
 class LayerDiffusionForForge(scripts.Script):
 
+    transparentImages = []
+
     def title(self):
         return "LayerDiffuse"
 
@@ -167,7 +169,7 @@ class LayerDiffusionForForge(scripts.Script):
                     file_name='vae_transparent_decoder.safetensors'
                 )
                 vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(model_path))
-            vae_transparent_decoder.patch(p, vae.patcher, output_origin)
+            vae_transparent_decoder.patch(p, vae.patcher, output_origin, self.transparentImages)
 
             if vae_transparent_encoder is None:
                 model_path = load_file_from_url(
@@ -190,7 +192,7 @@ class LayerDiffusionForForge(scripts.Script):
                 vae_transparent_decoder.mod_number = 3
             if method == LayerMethod.BG_TO_FG_SD15:
                 vae_transparent_decoder.mod_number = 2
-            vae_transparent_decoder.patch(p, vae.patcher, output_origin)
+            vae_transparent_decoder.patch(p, vae.patcher, output_origin, self.transparentImages)
 
             if vae_transparent_encoder is None:
                 model_path = load_file_from_url(
@@ -381,30 +383,31 @@ class LayerDiffusionForForge(scripts.Script):
         if not enabled or not enabledSaveRebuild:
             return
         
-        print( f"processed:{processed}" )
+        # print( f"processed:{processed}" )
         print( f"processed images           :{processed.images}" )
+        print( f"self.transparentImages     :{self.transparentImages}" )
 
         
         if processed.images is not None and len(processed.images) > 0:
             images_copy = processed.images[:]
 
-            if len(processed.extra_images) != len(processed.images) and len(images_copy) != 1 :
+            if len(self.transparentImages) != len(processed.images) and len(images_copy) != 1 :
                 # Batch Process.
                 images_copy.pop(0)
 
-            extra_images = processed.extra_images
+            # extra_images = processed.extra_images
 
-            pil_images = []
-            for img in extra_images:
-                if img.shape[2] == 3:  # RGB
-                    pil_image = Image.fromarray(img, 'RGB')
-                    pil_image = pil_image.convert("RGBA")
-                elif img.shape[2] == 4:  # RGBA
-                    pil_image = Image.fromarray(img, 'RGBA')
-                pil_images.append(pil_image)
+            # pil_images = []
+            # for img in extra_images:
+            #     if img.shape[2] == 3:  # RGB
+            #         pil_image = Image.fromarray(img, 'RGB')
+            #         pil_image = pil_image.convert("RGBA")
+            #     elif img.shape[2] == 4:  # RGBA
+            #         pil_image = Image.fromarray(img, 'RGBA')
+            #     pil_images.append(pil_image)
 
 
-            for image_a, image_b in zip(pil_images, images_copy):
+            for image_a, image_b in zip(self.transparentImages, images_copy):
                 image_b = image_b.convert("RGBA")
                 
                 # Create alpha mask with strict threshold
@@ -435,7 +438,9 @@ class LayerDiffusionForForge(scripts.Script):
                     suffix="-rebuild"
                 )
 
+            self.transparentImages =[]
             processed.images = []
         else:
             print("processed.images is null or zero index.")
+
 
