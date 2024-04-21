@@ -1,29 +1,3 @@
-![image](https://github.com/new-sankaku/sd-forge-layerdiffuse/blob/main/2024-04-16%20000652.png)
-
-> [!IMPORTANT]
-> Transparent image saving process that reflects modifications made by Extension.  
-> Extensionによる修正を反映した透過画像の保存処理  
-  
-The following files are additionally output.  
-XXXXXXX-transparent.png  
-XXXXXXX--rebuild.png  
-
-> [!TIP]
-> - Added saving process for transparent images created by Layerdiffuse  
-> - Save transparent images that reflect modifications made by Extensions (Hires, ADtailer)  
->   Note: Does Hires cause an error if the image size after enlargement is not a multiple of 256? We recommend multiplying 1024*1024 by 1.5 to 1536x1536.  
-> - When Batch count is set to 2 or more, the previous image is always included in the Image List returned by the webui side. Also,   
->   since the order is different in ascending/descending order, initialization processing is added to Layerdiffuse. It might cause some problems.  
-> - The black and white check pattern in the non-transparent image has been changed to 1pixel*1pixel for the convenience of merging corrections.
-
-> [!TIP]
-> - Layerdiffuseの作成した透過画像の保存処理を追加  
-> - Extensionによる修正を反映した透過画像を保存（Hires、ADetailer）  
->   注意：Hiresは拡大後の画像サイズが256の倍数じゃないとエラーになる？1024*1024を1.5倍して1536x1536がオススメ。  
-> - Batch countを2以上にするとwebui側が返すImage Listに以前のイメージが常に入る。  
->   また順序が昇順／降順バラバラにくるのでLayerdiffuse内に初期化処理を追加。何か問題を引き起こすかも。  
-> - 非透過画像の白黒のチェック柄は修正をマージする都合上、1pixel*1pixelに変更しています。  
-  
 # sd-forge-layerdiffuse
 
 Transparent Image Layer Diffusion using Latent Transparency
