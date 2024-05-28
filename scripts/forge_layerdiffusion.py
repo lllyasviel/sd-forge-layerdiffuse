@@ -43,6 +43,7 @@ class LayerMethod(Enum):
     BG_TO_BLEND = "(SDXL) From Background to Blending"
     BG_BLEND_TO_FG = "(SDXL) From Background and Blending to Foreground"
     BG_TO_FG = "(SDXL) From Background to Foreground"
+    FG_TO_BG = "(SDXL) From Foreground to Background"
 
 
 @functools.lru_cache(maxsize=2)
@@ -91,7 +92,7 @@ class LayerDiffusionForForge(scripts.Script):
             if m == LayerMethod.JOINT_SD15:
                 return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
 
-            if m == LayerMethod.FG_TO_BLEND:
+            if m == LayerMethod.FG_TO_BLEND or m == LayerMethod.FG_TO_BG:
                 return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
             if m == LayerMethod.BG_TO_BLEND or m == LayerMethod.BG_TO_FG:
@@ -119,6 +120,8 @@ class LayerDiffusionForForge(scripts.Script):
         self.enabled, self.original_method, self.weight, self.ending_step, self.fg_image, self.bg_image, self.blend_image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt = script_args
         if method == LayerMethod.BG_TO_FG.value:
             method = LayerMethod.BG_TO_BLEND.value
+        if method == LayerMethod.FG_TO_BG.value:
+            method = LayerMethod.FG_TO_BLEND.value
 
 
         if not enabled:
@@ -364,8 +367,11 @@ class LayerDiffusionForForge(scripts.Script):
         return
 
     def process_after_every_sampling(self, p: StableDiffusionProcessing, *args, **kwargs):
-        if self.original_method == LayerMethod.FG_TO_BG.value:
+        if self.original_method == LayerMethod.BG_TO_FG.value:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
+            return self.process_before_every_sampling(p, *script_args, **kwargs)
+        if self.original_method == LayerMethod.FG_TO_BG.value:
+            script_args = [self.enabled, LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
             return self.process_before_every_sampling(p, *script_args, **kwargs)
         return
 
