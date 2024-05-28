@@ -116,7 +116,9 @@ class LayerDiffusionForForge(scripts.Script):
         # If you use highres fix, this will be called twice.
 
         enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
-        self.enabled, self.method, self.weight, self.ending_step, self.fg_image, self.bg_image, self.blend_image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt = script_args
+        self.enabled, self.original_method, self.weight, self.ending_step, self.fg_image, self.bg_image, self.blend_image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt = script_args
+        if method == LayerMethod.BG_TO_FG.value:
+            method = LayerMethod.BG_TO_BLEND.value
 
 
         if not enabled:
@@ -362,7 +364,7 @@ class LayerDiffusionForForge(scripts.Script):
         return
 
     def process_after_every_sampling(self, p: StableDiffusionProcessing, *args, **kwargs):
-        if LayerMethod.BG_TO_FG.value in p.extra_generation_params.get('layerdiffusion_method', ''):
+        if self.original_method == LayerMethod.FG_TO_BG.value:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
             return self.process_before_every_sampling(p, *script_args, **kwargs)
         return
