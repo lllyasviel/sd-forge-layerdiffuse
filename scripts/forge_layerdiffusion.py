@@ -366,7 +366,7 @@ class LayerDiffusionForForge(scripts.Script):
         p.sd_model.forge_objects.vae = vae
         return
 
-    def process_after_every_sampling(self, p: StableDiffusionProcessing, *args, **kwargs):
+    def process_after_every_sampling(self, p: StableDiffusionProcessing, process, *args, **kwargs):
         if self.original_method == LayerMethod.BG_TO_FG.value:
             print(len(args[0]))
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0].images, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
