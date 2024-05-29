@@ -6,7 +6,7 @@ import numpy as np
 import copy
 
 from modules import scripts
-from modules.processing import StableDiffusionProcessing, StableDiffusionProcessingImg2Img, process_images
+from modules.processing import StableDiffusionProcessing, process_images, Processed
 from lib_layerdiffusion.enums import ResizeMode
 from lib_layerdiffusion.utils import rgba2rgbfp32, to255unit8, crop_and_resize_image, forge_clip_encode
 from enum import Enum
@@ -374,7 +374,15 @@ class LayerDiffusionForForge(scripts.Script):
             res = process_images(p)
             print(len(args[0].images))
             print(len(res.images))
-            return
+            args[0].images = res.images
+            res = Processed(
+                p,
+                images_list=res.images,
+                seed=p.all_seeds[0],
+                subseed=p.all_subseeds[0],
+                extra_images_list=p.extra_result_images,
+            )
+            return res
         
         
         
