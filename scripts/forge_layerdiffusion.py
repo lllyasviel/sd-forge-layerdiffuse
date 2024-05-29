@@ -6,7 +6,7 @@ import numpy as np
 import copy
 
 from modules import scripts
-from modules.processing import StableDiffusionProcessing
+from modules.processing import StableDiffusionProcessing, StableDiffusionProcessingImg2Img, process_images
 from lib_layerdiffusion.enums import ResizeMode
 from lib_layerdiffusion.utils import rgba2rgbfp32, to255unit8, crop_and_resize_image, forge_clip_encode
 from enum import Enum
@@ -369,9 +369,55 @@ class LayerDiffusionForForge(scripts.Script):
     def process_after_every_sampling(self, p: StableDiffusionProcessing, *args, **kwargs):
         if self.original_method == LayerMethod.BG_TO_FG.value:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            return self.process_before_every_sampling(p, *script_args, **kwargs)
-        if self.original_method == LayerMethod.FG_TO_BG.value:
-            script_args = [self.enabled, LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            return self.process_before_every_sampling(p, *script_args, **kwargs)
+            self.process_before_every_sampling(p, *script_args, **kwargs)
+            process_images(p)
+            return
+        # if self.original_method == LayerMethod.FG_TO_BG.value:
+        #     script_args = [self.enabled, LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
+        #     seed, subseed = self.get_seed(p)
+        #     width, height = self.get_width_height(p, args)
+        #     steps = self.get_steps(p, args)
+        #     cfg_scale = self.get_cfg_scale(p, args)
+        #     initial_noise_multiplier = self.get_initial_noise_multiplier(p, args)
+        #     sampler_name = self.get_sampler(p, args)
+        #     override_settings = self.get_override_settings(p, args)
+        #     img2img = StableDiffusionProcessingImg2Img(
+        #         init_images=[args[0]],
+        #         resize_mode=0,
+        #         denoising_strength=args.ad_denoising_strength,
+        #         mask=None,
+        #         mask_blur=args.ad_mask_blur,
+        #         inpainting_fill=1,
+        #         inpaint_full_res=args.ad_inpaint_only_masked,
+        #         inpaint_full_res_padding=args.ad_inpaint_only_masked_padding,
+        #         inpainting_mask_invert=0,
+        #         initial_noise_multiplier=initial_noise_multiplier,
+        #         sd_model=p.sd_model,
+        #         outpath_samples=p.outpath_samples,
+        #         outpath_grids=p.outpath_grids,
+        #         prompt="",
+        #         negative_prompt="",
+        #         styles=p.styles,
+        #         seed=seed,
+        #         subseed=subseed,
+        #         subseed_strength=p.subseed_strength,
+        #         seed_resize_from_h=p.seed_resize_from_h,
+        #         seed_resize_from_w=p.seed_resize_from_w,
+        #         sampler_name=sampler_name,
+        #         batch_size=1,
+        #         n_iter=1,
+        #         steps=steps,
+        #         cfg_scale=cfg_scale,
+        #         width=width,
+        #         height=height,
+        #         restore_faces=args.ad_restore_face,
+        #         tiling=p.tiling,
+        #         extra_generation_params=p.extra_generation_params,
+        #         do_not_save_samples=True,
+        #         do_not_save_grid=True,
+        #         override_settings=override_settings,
+        # )
+        #     return img2img
+
         return
 
