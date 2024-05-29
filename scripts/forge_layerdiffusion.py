@@ -366,15 +366,15 @@ class LayerDiffusionForForge(scripts.Script):
         p.sd_model.forge_objects.vae = vae
         return
 
-    def process_after_every_sampling(self, process, params, *args, **kwargs):
+    def process_after_every_sampling(self, p: StableDiffusionProcessing, *args, **kwargs):
         if self.original_method == LayerMethod.BG_TO_FG.value:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0].images[1], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            self.process_before_every_sampling(process, *script_args, **kwargs)
-            process.sample(process.hr_c, process.hr_uc, process.seeds, process.subseeds, process.subseed_strength, process.prompts)
+            self.process_before_every_sampling(p, *script_args, **kwargs)
+            p.sample(p.hr_c, p.hr_uc, p.seeds, p.subseeds, p.subseed_strength, p.prompts)
             return
         if self.original_method == LayerMethod.FG_TO_BG.value:
             script_args = [self.enabled, LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0].images[0], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            self.process_before_every_sampling(process, *script_args, **kwargs)
-            process.sample(process.hr_c, process.hr_uc, process.seeds, process.subseeds, process.subseed_strength, process.prompts)
+            self.process_before_every_sampling(p, *script_args, **kwargs)
+            p.sample(p.hr_c, p.hr_uc, p.seeds, p.subseeds, p.subseed_strength, p.prompts)
             return
         return
