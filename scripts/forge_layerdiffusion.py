@@ -366,21 +366,21 @@ class LayerDiffusionForForge(scripts.Script):
         p.sd_model.forge_objects.vae = vae
         return
 
-    def process_after_every_sampling(self, p: StableDiffusionProcessing, process, *args, **kwargs):
+    def process_after_every_sampling(self, process, params, *args, **kwargs):
         if self.original_method == LayerMethod.BG_TO_FG.value:
             print(len(args[0]))
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0].images, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            self.process_before_every_sampling(p, *script_args, **kwargs)
-            res = process_images(p)
+            self.process_before_every_sampling(process, *script_args, **kwargs)
+            res = process_images(process)
             print(len(args[0].images))
             print(len(res.images))
             args[0].images = res.images
             res = Processed(
-                p,
+                process,
                 images_list=res.images,
-                seed=p.all_seeds[0],
-                subseed=p.all_subseeds[0],
-                extra_images_list=p.extra_result_images,
+                seed=process.all_seeds[0],
+                subseed=process.all_subseeds[0],
+                extra_images_list=process.extra_result_images,
             )
             return res
         
