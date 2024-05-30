@@ -370,13 +370,13 @@ class LayerDiffusionForForge(scripts.Script):
 
     def postprocess_image(self, p, pp, *args):
         if self.original_method == LayerMethod.BG_TO_FG.value:
-            script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0].images[1], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            print(len(args[0].images))
+            print(p.init_images[0])
+            print(pp.image)
+            script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
             self.process_before_every_sampling(p, *script_args)
             return
         if self.original_method == LayerMethod.FG_TO_BG.value:
             script_args = [self.enabled, LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, args[0].images[0], self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            print(len(args[0].images))
             self.process_before_every_sampling(p, *script_args,)
             return
         return
