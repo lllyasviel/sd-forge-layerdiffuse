@@ -93,9 +93,11 @@ class LayerDiffusionForForge(scripts.Script):
                 return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
 
             if m == LayerMethod.FG_TO_BLEND or m == LayerMethod.FG_TO_BG:
+                m = LayerMethod.FG_TO_BLEND
                 return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
             if m == LayerMethod.BG_TO_BLEND or m == LayerMethod.BG_TO_FG:
+                m = LayerMethod.BG_TO_BLEND
                 return gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
             if m == LayerMethod.BG_BLEND_TO_FG:
