@@ -18,6 +18,7 @@ def forge_clip_encode(clip, text):
 def rgba2rgbfp32(x):
     if not isinstance(x, np.ndarray):
         if isinstance(x, Image.Image):
+            x.save('test12.png')
             x = np.array(x.convert('RGBA'))
         else:
             x = np.array(api.decode_base64_to_image(x).convert('RGBA'))

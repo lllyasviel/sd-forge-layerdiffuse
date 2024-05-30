@@ -120,6 +120,8 @@ class LayerDiffusionForForge(scripts.Script):
 
         enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
         self.enabled, self.original_method, self.weight, self.ending_step, self.fg_image, self.bg_image, self.blend_image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt = script_args
+        self.steps = p.steps
+        print(p.steps)
         if method == LayerMethod.BG_TO_FG.value:
             method = LayerMethod.BG_TO_BLEND.value
         if method == LayerMethod.FG_TO_BG.value:
@@ -369,6 +371,7 @@ class LayerDiffusionForForge(scripts.Script):
         return
 
     def postprocess_image(self, p, pp, *args):
+        p.steps = self.steps
         if self.original_method == LayerMethod.BG_TO_FG.value:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
             # Create a dummy tensor to get the latent shape
