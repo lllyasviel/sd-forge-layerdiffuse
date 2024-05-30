@@ -120,8 +120,6 @@ class LayerDiffusionForForge(scripts.Script):
 
         enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
         self.enabled, self.original_method, self.weight, self.ending_step, self.fg_image, self.bg_image, self.blend_image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt = script_args
-        self.steps = p.steps
-        print(p.steps)
         if method == LayerMethod.BG_TO_FG.value:
             method = LayerMethod.BG_TO_BLEND.value
         if method == LayerMethod.FG_TO_BG.value:
@@ -371,9 +369,9 @@ class LayerDiffusionForForge(scripts.Script):
         return
 
     def postprocess_image(self, p, pp, *args):
-        p.steps = self.steps
         if self.original_method == LayerMethod.BG_TO_FG.value:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
+            p.iteration = 0
             # Create a dummy tensor to get the latent shape
             dummy_tensor = torch.zeros((1, 3, pp.image.height, pp.image.width)).to(p.sd_model.device)
             latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
@@ -382,6 +380,7 @@ class LayerDiffusionForForge(scripts.Script):
             return
         if self.original_method == LayerMethod.FG_TO_BG.value:
             script_args = [self.enabled, LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
+            p.iteration = 0
             # Create a dummy tensor to get the latent shape
             dummy_tensor = torch.zeros((1, 3, pp.image.height, pp.image.width)).to(p.sd_model.device)
             latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
