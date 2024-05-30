@@ -4,7 +4,7 @@ from ldm_patched.modules import model_management
 from modules.api import api
 import cv2
 import torch
-
+import PIL
 
 def forge_clip_encode(clip, text):
     if text is None:
@@ -17,7 +17,10 @@ def forge_clip_encode(clip, text):
 
 def rgba2rgbfp32(x):
     if not isinstance(x, np.ndarray):
-        x = np.array(api.decode_base64_to_image(x).convert('RGBA'))
+        if isinstance(x, PIL.Image):
+            x = np.array(x.convert('RGBA'))
+        else:
+            x = np.array(api.decode_base64_to_image(x).convert('RGBA'))
     rgb = x[..., :3].astype(np.float32) / 255.0
     a = x[..., 3:4].astype(np.float32) / 255.0
     return 0.5 + (rgb - 0.5) * a
