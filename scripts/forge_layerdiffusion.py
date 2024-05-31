@@ -6,7 +6,7 @@ import numpy as np
 import copy
 
 from modules import scripts, shared
-from modules.processing import StableDiffusionProcessing, process_images
+from modules.processing import StableDiffusionProcessing, process_images_inner
 from lib_layerdiffusion.enums import ResizeMode
 from lib_layerdiffusion.utils import rgba2rgbfp32, crop_and_resize_image, forge_clip_encode
 from enum import Enum
@@ -375,6 +375,8 @@ class LayerDiffusionForForge(scripts.Script):
             latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
             latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
             self.process_before_every_sampling(p, *script_args, **{'noise': torch.randn(latent_shape).to("cpu")})
-            pp.image = self.process_image(p)
+            processed = process_images_inner(p)
+            pp.image = processed.images_list[0]
             return
         return
+
