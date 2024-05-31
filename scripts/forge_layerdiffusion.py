@@ -373,15 +373,8 @@ class LayerDiffusionForForge(scripts.Script):
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
             dummy_tensor = torch.zeros((1, 3, pp.image.height, pp.image.width)).to(p.sd_model.device)
             latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
-            latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3])
-            
-            if not hasattr(self, 'initial_args'):
-                self.initial_args = (p.steps, shared.total_tqdm)
-            
+            latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
             self.process_before_every_sampling(p, *script_args, **{'noise': torch.randn(latent_shape).to("cpu")})
-            
-            if hasattr(self, 'initial_args'):
-                p.steps, shared.total_tqdm = self.initial_args
-                processed = process_images(p)
-                return processed
+            process_images(p)
+            return
         return
