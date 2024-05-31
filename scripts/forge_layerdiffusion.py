@@ -379,8 +379,8 @@ class LayerDiffusionForForge(scripts.Script):
             latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
             self.process_before_every_sampling(p, *script_args, **{'noise': torch.randn(latent_shape).to("cpu")})
             processed = process_images(p)
-            print(len(processed.images_list))
-            pp.image = processed.images_list[0]
+            print(len(processed.images))
+            pp.image = processed.images[0]
             return
         return
 
