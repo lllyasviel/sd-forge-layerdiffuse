@@ -157,6 +157,9 @@ class LayerDiffusionForForge(scripts.Script):
         fg_image = crop_and_resize_image(rgba2rgbfp32(fg_image), resize_mode, height, width) if fg_image is not None else None
         bg_image = crop_and_resize_image(rgba2rgbfp32(bg_image), resize_mode, height, width) if bg_image is not None else None
         blend_image = crop_and_resize_image(rgba2rgbfp32(blend_image), resize_mode, height, width) if blend_image is not None else None
+        self.fg_image = fg_image
+        self.bg_image = bg_image
+        self.blend_image = blend_image
 
         original_unet = p.sd_model.forge_objects.unet.clone()
         unet = p.sd_model.forge_objects.unet.clone()

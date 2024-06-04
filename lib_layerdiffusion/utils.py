@@ -22,9 +22,11 @@ def rgba2rgbfp32(x):
             x = np.array(x.convert('RGBA'))
         else:
             x = np.array(api.decode_base64_to_image(x).convert('RGBA'))
-    rgb = x[..., :3].astype(np.float32) / 255.0
-    a = x[..., 3:4].astype(np.float32) / 255.0
-    return 0.5 + (rgb - 0.5) * a
+        rgb = x[..., :3].astype(np.float32) / 255.0
+        a = x[..., 3:4].astype(np.float32) / 255.0
+        return 0.5 + (rgb - 0.5) * a
+    else:
+        return x
 
 
 def to255unit8(x):
