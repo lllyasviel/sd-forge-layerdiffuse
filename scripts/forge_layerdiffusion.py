@@ -4,6 +4,7 @@ import functools
 import torch
 import numpy as np
 import copy
+from PIL import Image
 
 from modules import scripts, shared
 from modules.processing import StableDiffusionProcessing, process_images
@@ -378,9 +379,13 @@ class LayerDiffusionForForge(scripts.Script):
         if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value] and self.pass_count < 2:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
             # save fg, bg, blend image
-            self.fg_image.save(f'fg_{self.pass_count}.png')
-            self.bg_image.save(f'bg_{self.pass_count}.png')
-            pp.image.save(f'blend_{self.pass_count}.png')
+            fg_image_pil = Image.fromarray(self.fg_image)
+            bg_image_pil = Image.fromarray(self.bg_image)
+            blend_image_pil = Image.fromarray(pp.image)
+
+            fg_image_pil.save(f'fg_{self.pass_count}.png')
+            bg_image_pil.save(f'bg_{self.pass_count}.png')
+            blend_image_pil.save(f'blend_{self.pass_count}.png')
             dummy_tensor = torch.zeros((1, 3, pp.image.height, pp.image.width)).to(p.sd_model.device)
             latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
             latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
