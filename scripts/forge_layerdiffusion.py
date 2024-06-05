@@ -376,6 +376,4 @@ class LayerDiffusionForForge(scripts.Script):
             # Replace the script arg values with the new values in script_args from one index before
             p.script_args_value = p.script_args_value[:index-1] + script_args + p.script_args_value[index + len(script_args)-1:]
             processed = process_images(p)
-            print(processed.__dict__)
             pp.image = processed.images[0]
-            pp.image.save('test.png')
