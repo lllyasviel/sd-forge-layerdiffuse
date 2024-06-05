@@ -78,7 +78,6 @@ class LayerDiffusionForForge(scripts.Script):
 
             resize_mode = gr.Radio(choices=[e.value for e in ResizeMode], value=ResizeMode.CROP_AND_RESIZE.value, label="Resize Mode", type='value', visible=False)
             output_origin = gr.Checkbox(label='Output original mat for img2img', value=False, visible=False)
-            self.pass_count = 0
 
 
         def method_changed(m):
@@ -370,7 +369,6 @@ class LayerDiffusionForForge(scripts.Script):
         return
 
     def postprocess_image(self, p, pp, *args):
-        self.pass_count += 1
         if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value]:
             script_args = (self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step if self.original_method == LayerMethod.BG_TO_FG.value else 0.5, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt)
             # search index for self.original_method in p.script_args_value
@@ -378,5 +376,5 @@ class LayerDiffusionForForge(scripts.Script):
             # Replace the script arg values with the new values in script_args from one index before
             p.script_args_value = p.script_args_value[:index-1] + script_args + p.script_args_value[index + len(script_args)-1:]
             processed = process_images(p)
-            print(processed)
+            print(processed.__dict__)
             pp.image = processed.images[0]
