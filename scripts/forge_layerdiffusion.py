@@ -374,24 +374,18 @@ class LayerDiffusionForForge(scripts.Script):
     def postprocess_image(self, p, pp, *args):
         self.pass_count += 1
         if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value] and self.pass_count < 2:
-            script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
+            script_args = (self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt)
 
+            truncated_script_args = [truncate_string(arg) for arg in p.script_args_value]
+            print(truncated_script_args)
             # search index for self.method in p.script_args_value
-            index = p.script_args_value.index(self.original_method)
+            index = p.script_args_value.index(self.method)
             # Replace the script arg values with the new values in script_args from one index before
-            # example:
             p.script_args_value = p.script_args_value[:index-1] + script_args + p.script_args_value[index + len(script_args):]
-
 
             # Truncate string arguments in script_args
             truncated_script_args = [truncate_string(arg) for arg in p.script_args_value]
-            # Print the truncated arguments
             print(truncated_script_args)
-            p.script_args_value = p.script_args_value[:index-1] + script_args + p.script_args_value[index + len(script_args):]
-            truncated_script_args = [truncate_string(arg) for arg in p.script_args_value]
-            print(truncated_script_args)
-
-            # print(script_args)
             # p.script_args = script_args
             processed = process_images(p)
             pp.image = processed.images[0]
