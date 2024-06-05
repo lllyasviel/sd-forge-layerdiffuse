@@ -122,14 +122,11 @@ class LayerDiffusionForForge(scripts.Script):
 
         enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
         self.enabled, self.original_method, self.weight, self.ending_step, self.fg_image, self.bg_image, self.blend_image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt = script_args
-        print("method", method)
+
         if method == LayerMethod.BG_TO_FG.value:
             method = LayerMethod.BG_TO_BLEND.value
         if method == LayerMethod.FG_TO_BG.value:
             method = LayerMethod.FG_TO_BLEND.value
-        print("after method", method)
-        print("blend_image", blend_image)
-
 
         if not enabled:
             return
@@ -152,7 +149,8 @@ class LayerDiffusionForForge(scripts.Script):
         height = H * 8
         width = W * 8
         batch_size = p.batch_size
-        print("input method", method)
+
+        self.method = method
         method = LayerMethod(method)
         print(f'[Layer Diffusion] {method}')
 
@@ -377,15 +375,22 @@ class LayerDiffusionForForge(scripts.Script):
         self.pass_count += 1
         if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value] and self.pass_count < 2:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            # # dummy latent for conditional model 
-            # dummy_tensor = torch.zeros((1, 3, pp.image.height, pp.image.width)).to(p.sd_model.device)
-            # latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
-            # latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
-            # self.process_before_every_sampling(p, *script_args, **{'noise': torch.randn(latent_shape).to("cpu")})
+
+            # search index for self.method in p.script_args_value
+            index = p.script_args_value.index(self.original_method)
+            # Replace the script arg values with the new values in script_args from one index before
+            # example:
+            p.script_args_value = p.script_args_value[:index-1] + script_args + p.script_args_value[index + len(script_args):]
+
+
             # Truncate string arguments in script_args
             truncated_script_args = [truncate_string(arg) for arg in p.script_args_value]
             # Print the truncated arguments
             print(truncated_script_args)
+            p.script_args_value = p.script_args_value[:index-1] + script_args + p.script_args_value[index + len(script_args):]
+            truncated_script_args = [truncate_string(arg) for arg in p.script_args_value]
+            print(truncated_script_args)
+
             # print(script_args)
             # p.script_args = script_args
             processed = process_images(p)
