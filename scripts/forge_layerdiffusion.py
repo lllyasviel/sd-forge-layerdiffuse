@@ -123,10 +123,13 @@ class LayerDiffusionForForge(scripts.Script):
 
         enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
         self.enabled, self.original_method, self.weight, self.ending_step, self.fg_image, self.bg_image, self.blend_image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt = script_args
+        print("method", method)
         if method == LayerMethod.BG_TO_FG.value:
             method = LayerMethod.BG_TO_BLEND.value
         if method == LayerMethod.FG_TO_BG.value:
             method = LayerMethod.FG_TO_BLEND.value
+        print("after method", method)
+        print("blend_image", blend_image)
 
 
         if not enabled:
@@ -373,19 +376,6 @@ class LayerDiffusionForForge(scripts.Script):
 
     def postprocess_image(self, p, pp, *args):
         self.pass_count += 1
-        # print all script args with labels
-        print("enabled", self.enabled)
-        print("original_method", self.original_method)
-        print("weight", self.weight)
-        print("ending_step", self.ending_step)
-        print("fg_image", self.fg_image)
-        print("bg_image", self.bg_image)
-        print("blend_image", self.blend_image)
-        print("resize_mode", self.resize_mode)
-        print("output_origin", self.output_origin)
-        print("fg_additional_prompt", self.fg_additional_prompt)
-        print("bg_additional_prompt", self.bg_additional_prompt)
-        print("blend_additional_prompt", self.blend_additional_prompt)
         if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value] and self.pass_count < 2:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
             # dummy latent for conditional model 
@@ -394,6 +384,4 @@ class LayerDiffusionForForge(scripts.Script):
             latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
             self.process_before_every_sampling(p, *script_args, **{'noise': torch.randn(latent_shape).to("cpu")})
             processed = process_images(p)
-            print(len(processed.images))
-            processed.images[0].save('test.png')
             pp.image = processed.images[0]
