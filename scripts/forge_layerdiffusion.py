@@ -5,7 +5,7 @@ import torch
 import numpy as np
 import copy
 
-from modules import scripts, shared
+from modules import scripts
 from modules.processing import StableDiffusionProcessing, process_images
 from lib_layerdiffusion.enums import ResizeMode
 from lib_layerdiffusion.utils import rgba2rgbfp32, crop_and_resize_image, forge_clip_encode
@@ -17,7 +17,6 @@ from ldm_patched.modules.model_management import current_loaded_models
 from modules_forge.forge_sampler import sampling_prepare
 from modules.modelloader import load_file_from_url
 from lib_layerdiffusion.attention_sharing import AttentionSharingPatcher
-import textwrap
 
 
 def is_model_loaded(model):
@@ -372,8 +371,8 @@ class LayerDiffusionForForge(scripts.Script):
 
     def postprocess_image(self, p, pp, *args):
         self.pass_count += 1
-        if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value] and self.pass_count < 2:
-            script_args = (self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt)
+        if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value]:
+            script_args = (self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step if self.original_method == LayerMethod.BG_TO_FG.value else 0.5, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt)
             # search index for self.original_method in p.script_args_value
             index = p.script_args_value.index(self.original_method)
             # Replace the script arg values with the new values in script_args from one index before
