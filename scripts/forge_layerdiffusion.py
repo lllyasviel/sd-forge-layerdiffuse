@@ -383,7 +383,7 @@ class LayerDiffusionForForge(scripts.Script):
             # latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
             # self.process_before_every_sampling(p, *script_args, **{'noise': torch.randn(latent_shape).to("cpu")})
             # Truncate string arguments in script_args
-            truncated_script_args = [truncate_string(arg) for arg in script_args]
+            truncated_script_args = [truncate_string(arg) for arg in p.script_args_value]
             # Print the truncated arguments
             print(truncated_script_args)
             # print(script_args)
