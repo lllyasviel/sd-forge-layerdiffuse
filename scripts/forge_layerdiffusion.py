@@ -4,7 +4,6 @@ import functools
 import torch
 import numpy as np
 import copy
-from PIL import Image
 
 from modules import scripts, shared
 from modules.processing import StableDiffusionProcessing, process_images
@@ -18,7 +17,7 @@ from ldm_patched.modules.model_management import current_loaded_models
 from modules_forge.forge_sampler import sampling_prepare
 from modules.modelloader import load_file_from_url
 from lib_layerdiffusion.attention_sharing import AttentionSharingPatcher
-from ldm_patched.modules import model_management
+import textwrap
 
 
 def is_model_loaded(model):
@@ -383,8 +382,16 @@ class LayerDiffusionForForge(scripts.Script):
             # latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
             # latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
             # self.process_before_every_sampling(p, *script_args, **{'noise': torch.randn(latent_shape).to("cpu")})
-            print(p.script_args_value)
+            # Truncate string arguments in script_args
+            truncated_script_args = [truncate_string(arg) for arg in script_args]
+            # Print the truncated arguments
+            print(truncated_script_args)
             # print(script_args)
             # p.script_args = script_args
             processed = process_images(p)
             pp.image = processed.images[0]
+
+def truncate_string(s, limit=100):
+    if isinstance(s, str):
+        return textwrap.shorten(s, width=limit, placeholder="...")
+    return s
