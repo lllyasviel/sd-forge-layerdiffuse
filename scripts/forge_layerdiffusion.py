@@ -158,9 +158,6 @@ class LayerDiffusionForForge(scripts.Script):
         fg_image = crop_and_resize_image(rgba2rgbfp32(fg_image), resize_mode, height, width) if fg_image is not None else None
         bg_image = crop_and_resize_image(rgba2rgbfp32(bg_image), resize_mode, height, width) if bg_image is not None else None
         blend_image = crop_and_resize_image(rgba2rgbfp32(blend_image), resize_mode, height, width) if blend_image is not None else None
-        self.fg_image = fg_image
-        self.bg_image = bg_image
-        self.blend_image = blend_image
 
         original_unet = p.sd_model.forge_objects.unet.clone()
         unet = p.sd_model.forge_objects.unet.clone()
@@ -378,14 +375,7 @@ class LayerDiffusionForForge(scripts.Script):
         self.pass_count += 1
         if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value] and self.pass_count < 2:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            # save fg, bg, blend image
-            fg_image_pil = Image.fromarray(self.fg_image)
-            bg_image_pil = Image.fromarray(self.bg_image)
-            blend_image_pil = Image.fromarray(pp.image)
-
-            fg_image_pil.save(f'fg_{self.pass_count}.png')
-            bg_image_pil.save(f'bg_{self.pass_count}.png')
-            blend_image_pil.save(f'blend_{self.pass_count}.png')
+            # dummy latent for conditional model 
             dummy_tensor = torch.zeros((1, 3, pp.image.height, pp.image.width)).to(p.sd_model.device)
             latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
             latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
