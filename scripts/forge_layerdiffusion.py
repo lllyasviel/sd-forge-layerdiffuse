@@ -378,3 +378,4 @@ class LayerDiffusionForForge(scripts.Script):
             processed = process_images(p)
             print(processed.__dict__)
             pp.image = processed.images[0]
+            pp.image.save('test.png')
