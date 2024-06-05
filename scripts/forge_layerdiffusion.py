@@ -379,7 +379,7 @@ class LayerDiffusionForForge(scripts.Script):
             truncated_script_args = [truncate_string(arg) for arg in p.script_args_value]
             print(truncated_script_args)
             # search index for self.method in p.script_args_value
-            index = p.script_args_value.index(self.method)
+            index = p.script_args_value.index(self.original_method)
             # Replace the script arg values with the new values in script_args from one index before
             p.script_args_value = p.script_args_value[:index-1] + script_args + p.script_args_value[index + len(script_args):]
 
