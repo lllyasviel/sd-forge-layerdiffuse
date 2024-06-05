@@ -6,9 +6,9 @@ import numpy as np
 import copy
 
 from modules import scripts
-from modules.processing import StableDiffusionProcessing
+from modules.processing import StableDiffusionProcessing, process_images
 from lib_layerdiffusion.enums import ResizeMode
-from lib_layerdiffusion.utils import rgba2rgbfp32, to255unit8, crop_and_resize_image, forge_clip_encode
+from lib_layerdiffusion.utils import rgba2rgbfp32, crop_and_resize_image, forge_clip_encode
 from enum import Enum
 from modules.paths import models_path
 from ldm_patched.modules.utils import load_torch_file
@@ -17,7 +17,6 @@ from ldm_patched.modules.model_management import current_loaded_models
 from modules_forge.forge_sampler import sampling_prepare
 from modules.modelloader import load_file_from_url
 from lib_layerdiffusion.attention_sharing import AttentionSharingPatcher
-from ldm_patched.modules import model_management
 
 
 def is_model_loaded(model):
@@ -42,6 +41,8 @@ class LayerMethod(Enum):
     FG_BLEND_TO_BG = "(SDXL) From Foreground and Blending to Background"
     BG_TO_BLEND = "(SDXL) From Background to Blending"
     BG_BLEND_TO_FG = "(SDXL) From Background and Blending to Foreground"
+    BG_TO_FG = "(SDXL) From Background to Foreground"
+    FG_TO_BG = "(SDXL) From Foreground to Background"
 
 
 @functools.lru_cache(maxsize=2)
@@ -78,6 +79,7 @@ class LayerDiffusionForForge(scripts.Script):
             resize_mode = gr.Radio(choices=[e.value for e in ResizeMode], value=ResizeMode.CROP_AND_RESIZE.value, label="Resize Mode", type='value', visible=False)
             output_origin = gr.Checkbox(label='Output original mat for img2img', value=False, visible=False)
 
+
         def method_changed(m):
             m = LayerMethod(m)
 
@@ -90,10 +92,12 @@ class LayerDiffusionForForge(scripts.Script):
             if m == LayerMethod.JOINT_SD15:
                 return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
 
-            if m == LayerMethod.FG_TO_BLEND:
+            if m == LayerMethod.FG_TO_BLEND or m == LayerMethod.FG_TO_BG:
+                m = LayerMethod.FG_TO_BLEND
                 return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
-            if m == LayerMethod.BG_TO_BLEND:
+            if m == LayerMethod.BG_TO_BLEND or m == LayerMethod.BG_TO_FG:
+                m = LayerMethod.BG_TO_BLEND
                 return gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
             if m == LayerMethod.BG_BLEND_TO_FG:
@@ -115,6 +119,12 @@ class LayerDiffusionForForge(scripts.Script):
         # If you use highres fix, this will be called twice.
 
         enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
+        self.enabled, self.original_method, self.weight, self.ending_step, self.fg_image, self.bg_image, self.blend_image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt = script_args
+
+        if method == LayerMethod.BG_TO_FG.value:
+            method = LayerMethod.BG_TO_BLEND.value
+        if method == LayerMethod.FG_TO_BG.value:
+            method = LayerMethod.FG_TO_BLEND.value
 
         if not enabled:
             return
@@ -357,3 +367,13 @@ class LayerDiffusionForForge(scripts.Script):
         p.sd_model.forge_objects.unet = unet
         p.sd_model.forge_objects.vae = vae
         return
+
+    def postprocess_image(self, p, pp, *args):
+        if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value]:
+            script_args = (self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step if self.original_method == LayerMethod.BG_TO_FG.value else 0.5, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt)
+            # search index for self.original_method in p.script_args_value
+            index = p.script_args_value.index(self.original_method)
+            # Replace the script arg values with the new values in script_args from one index before
+            p.script_args_value = p.script_args_value[:index-1] + script_args + p.script_args_value[index + len(script_args)-1:]
+            processed = process_images(p)
+            pp.image = processed.images[0]
