@@ -150,7 +150,7 @@ class LayerDiffusionForForge(scripts.Script):
         height = H * 8
         width = W * 8
         batch_size = p.batch_size
-
+        print("input method", method)
         method = LayerMethod(method)
         print(f'[Layer Diffusion] {method}')
 
