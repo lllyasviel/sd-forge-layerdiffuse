@@ -378,13 +378,13 @@ class LayerDiffusionForForge(scripts.Script):
         self.pass_count += 1
         if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value] and self.pass_count < 2:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
-            # dummy latent for conditional model 
-            dummy_tensor = torch.zeros((1, 3, pp.image.height, pp.image.width)).to(p.sd_model.device)
-            latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
-            latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
-            self.process_before_every_sampling(p, *script_args, **{'noise': torch.randn(latent_shape).to("cpu")})
-            print(p.script_args)
-            print(script_args)
+            # # dummy latent for conditional model 
+            # dummy_tensor = torch.zeros((1, 3, pp.image.height, pp.image.width)).to(p.sd_model.device)
+            # latent_shape = p.sd_model.get_first_stage_encoding(p.sd_model.encode_first_stage(dummy_tensor)).shape
+            # latent_shape = (p.batch_size, latent_shape[1], latent_shape[2], latent_shape[3]) 
+            # self.process_before_every_sampling(p, *script_args, **{'noise': torch.randn(latent_shape).to("cpu")})
+            print(p.script_args_value)
+            # print(script_args)
             # p.script_args = script_args
             processed = process_images(p)
             pp.image = processed.images[0]
