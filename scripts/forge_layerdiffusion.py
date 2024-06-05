@@ -373,7 +373,19 @@ class LayerDiffusionForForge(scripts.Script):
 
     def postprocess_image(self, p, pp, *args):
         self.pass_count += 1
-        print(self.original_method, self.pass_count)
+        # print all script args with labels
+        print("enabled", self.enabled)
+        print("original_method", self.original_method)
+        print("weight", self.weight)
+        print("ending_step", self.ending_step)
+        print("fg_image", self.fg_image)
+        print("bg_image", self.bg_image)
+        print("blend_image", self.blend_image)
+        print("resize_mode", self.resize_mode)
+        print("output_origin", self.output_origin)
+        print("fg_additional_prompt", self.fg_additional_prompt)
+        print("bg_additional_prompt", self.bg_additional_prompt)
+        print("blend_additional_prompt", self.blend_additional_prompt)
         if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value] and self.pass_count < 2:
             script_args = [self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt]
             # dummy latent for conditional model 
