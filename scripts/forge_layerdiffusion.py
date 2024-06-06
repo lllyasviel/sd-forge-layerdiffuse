@@ -386,9 +386,9 @@ class LayerDiffusionForForge(scripts.Script):
         p <modules.processing.StableDiffusionProcessingTxt2Img>
         processed <modules.processing.Processed>
         """
-
+        ## one step wokflow hack
         if self.original_method in [LayerMethod.BG_TO_FG.value, LayerMethod.FG_TO_BG.value]:
-            script_args = (self.enabled, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step if self.original_method == LayerMethod.BG_TO_FG.value else 0.5, self.fg_image, self.bg_image, pp.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt)
+            script_args = (self.enabled, self.enabledSaveRebuild, LayerMethod.BG_BLEND_TO_FG.value if self.original_method == LayerMethod.BG_TO_FG.value else LayerMethod.FG_BLEND_TO_BG.value, self.weight, self.ending_step if self.original_method == LayerMethod.BG_TO_FG.value else 0.5, self.fg_image, self.bg_image, processed.image, self.resize_mode, self.output_origin, self.fg_additional_prompt, self.bg_additional_prompt, self.blend_additional_prompt)
             # search index for self.original_method in p.script_args_value
             index = p.script_args_value.index(self.original_method)
             # Replace the script arg values with the new values in script_args from two indexes before
@@ -396,9 +396,7 @@ class LayerDiffusionForForge(scripts.Script):
             res = process_images(p)
             processed.image = res.images[0]
 
-        enabled, enabledSaveRebuild, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
-
-        if not enabled or not enabledSaveRebuild:
+        if not self.enabled or not self.enabledSaveRebuild:
             return
         
         # print( f"processed:{processed}" )
