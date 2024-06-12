@@ -1,9 +1,10 @@
 import numpy as np
 from lib_layerdiffusion.enums import ResizeMode
-from ldm_patched.modules import model_management
+from modules.shared import device
+from modules.api import api
 import cv2
 import torch
-
+from PIL import Image
 
 def forge_clip_encode(clip, text):
     if text is None:
@@ -11,13 +12,20 @@ def forge_clip_encode(clip, text):
 
     tokens = clip.tokenize(text, return_word_ids=True)
     cond, pooled = clip.encode_from_tokens(tokens, return_pooled=True)
-    return cond.to(model_management.get_torch_device())
+    return cond.to(device)
 
 
 def rgba2rgbfp32(x):
-    rgb = x[..., :3].astype(np.float32) / 255.0
-    a = x[..., 3:4].astype(np.float32) / 255.0
-    return 0.5 + (rgb - 0.5) * a
+    if not isinstance(x, np.ndarray):
+        if isinstance(x, Image.Image):
+            x = np.array(x.convert('RGBA'))
+        else:
+            x = np.array(api.decode_base64_to_image(x).convert('RGBA'))
+        rgb = x[..., :3].astype(np.float32) / 255.0
+        a = x[..., 3:4].astype(np.float32) / 255.0
+        return 0.5 + (rgb - 0.5) * a
+    else:
+        return x
 
 
 def to255unit8(x):
