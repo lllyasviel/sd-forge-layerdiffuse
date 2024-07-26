@@ -6,6 +6,10 @@ Transparent Image Layer Diffusion using Latent Transparency
 
 This is a WIP extension for SD WebUI [(via Forge)](https://github.com/lllyasviel/stable-diffusion-webui-forge) to generate transparent images and layers.
 
+# Updates
+
+1. img2img is finished! See also [here](https://github.com/lllyasviel/stable-diffusion-webui-forge/discussions/854)
+
 # Before You Start
 
 Because many people may be curious about how the latent preview looks like during a transparent diffusion process, I recorded a video so that you can see it before you download the models and extensions:
