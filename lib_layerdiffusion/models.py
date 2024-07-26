@@ -7,9 +7,11 @@ from tqdm import tqdm
 from typing import Optional, Tuple
 from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.models.modeling_utils import ModelMixin
-from diffusers.models.unet_2d_blocks import UNetMidBlock2D, get_down_block, get_up_block
+from diffusers.models.unets.unet_2d_blocks import UNetMidBlock2D, get_down_block, get_up_block
 import ldm_patched.modules.model_management as model_management
 from ldm_patched.modules.model_patcher import ModelPatcher
+from torchvision import transforms
+from PIL import Image
 
 
 def zero_module(module):
@@ -183,6 +185,38 @@ def checkerboard(shape):
     return np.indices(shape).sum(axis=0) % 2
 
 
+def build_alpha_pyramid(color, alpha, dk=1.2):
+    pyramid = []
+    current_premultiplied_color = color * alpha
+    current_alpha = alpha
+
+    while True:
+        pyramid.append((current_premultiplied_color, current_alpha))
+
+        H, W, C = current_alpha.shape
+        if min(H, W) == 1:
+            break
+
+        current_premultiplied_color = cv2.resize(current_premultiplied_color, (int(W / dk), int(H / dk)), interpolation=cv2.INTER_AREA)
+        current_alpha = cv2.resize(current_alpha, (int(W / dk), int(H / dk)), interpolation=cv2.INTER_AREA)[:, :, None]
+    return pyramid[::-1]
+
+
+def pad_rgb(np_rgba_hwc_uint8):
+    np_rgba_hwc = np_rgba_hwc_uint8.astype(np.float32) / 255.0
+    pyramid = build_alpha_pyramid(color=np_rgba_hwc[..., :3], alpha=np_rgba_hwc[..., 3:])
+
+    top_c, top_a = pyramid[0]
+    fg = np.sum(top_c, axis=(0, 1), keepdims=True) / np.sum(top_a, axis=(0, 1), keepdims=True).clip(1e-8, 1e32)
+
+    for layer_c, layer_a in pyramid:
+        layer_h, layer_w, _ = layer_c.shape
+        fg = cv2.resize(fg, (layer_w, layer_h), interpolation=cv2.INTER_LINEAR)
+        fg = layer_c + fg * (1.0 - layer_a)
+
+    return fg
+
+
 class TransparentVAEDecoder:
     def __init__(self, sd, mod_number=1):
         self.load_device = model_management.get_torch_device()
@@ -234,49 +268,34 @@ class TransparentVAEDecoder:
         median = torch.median(result, dim=0).values
         return median
 
-    def patch(self, p, vae_patcher, output_origin):
-        @torch.no_grad()
-        def wrapper(func, latent):
-            pixel = func(latent).movedim(-1, 1).to(device=self.load_device, dtype=self.dtype)
+    @torch.no_grad()
+    def decode(self, latent, pixel):
+        model_management.load_model_gpu(self.model)
 
-            if output_origin:
-                origin_outputs = (pixel.movedim(1, -1) * 255.0).detach().cpu().float().numpy().clip(0, 255).astype(np.uint8)
-                for png in origin_outputs:
-                    p.extra_result_images.append(png)
+        latent = latent[None, :, :, :].to(device=self.load_device, dtype=self.dtype)
+        pixel = transforms.ToTensor()(pixel)[None, :, :, :].to(device=self.load_device, dtype=self.dtype)
 
-            latent = latent.to(device=self.load_device, dtype=self.dtype)
-            model_management.load_model_gpu(self.model)
-            vis_list = []
+        y = self.estimate_augmented(pixel, latent)
 
-            for i in range(int(latent.shape[0])):
-                if self.mod_number != 1 and i % self.mod_number != 0:
-                    vis_list.append(pixel[i:i+1].movedim(1, -1))
-                    continue
+        y = y.clip(0, 1).movedim(1, -1)
+        alpha = y[..., :1]
+        fg = y[..., 1:]
 
-                y = self.estimate_augmented(pixel[i:i+1], latent[i:i+1])
+        B, H, W, C = fg.shape
+        cb = checkerboard(shape=(H // 64, W // 64))
+        cb = cv2.resize(cb, (W, H), interpolation=cv2.INTER_NEAREST)
+        cb = (0.5 + (cb - 0.5) * 0.1)[None, ..., None]
+        cb = torch.from_numpy(cb).to(fg)
 
-                y = y.clip(0, 1).movedim(1, -1)
-                alpha = y[..., :1]
-                fg = y[..., 1:]
+        vis = (fg * alpha + cb * (1 - alpha))[0]
+        vis = (vis * 255.0).detach().cpu().float().numpy().clip(0, 255).astype(np.uint8)
+        vis = Image.fromarray(vis)
 
-                B, H, W, C = fg.shape
-                cb = checkerboard(shape=(H // 64, W // 64))
-                cb = cv2.resize(cb, (W, H), interpolation=cv2.INTER_NEAREST)
-                cb = (0.5 + (cb - 0.5) * 0.1)[None, ..., None]
-                cb = torch.from_numpy(cb).to(fg)
+        png = torch.cat([fg, alpha], dim=3)[0]
+        png = (png * 255.0).detach().cpu().float().numpy().clip(0, 255).astype(np.uint8)
+        png = Image.fromarray(png)
 
-                vis = fg * alpha + cb * (1 - alpha)
-                vis_list.append(vis)
-
-                png = torch.cat([fg, alpha], dim=3)[0]
-                png = (png * 255.0).detach().cpu().float().numpy().clip(0, 255).astype(np.uint8)
-                p.extra_result_images.append(png)
-
-            vis_list = torch.cat(vis_list, dim=0)
-            return vis_list
-
-        vae_patcher.set_model_vae_decode_wrapper(wrapper)
-        return
+        return png, vis
 
 
 class TransparentVAEEncoder:
@@ -293,15 +312,14 @@ class TransparentVAEEncoder:
         self.model = ModelPatcher(model, load_device=self.load_device, offload_device=self.offload_device)
         return
 
-    def patch(self, p, vae_patcher):
-        @torch.no_grad()
-        def wrapper(func, latent):
-            print('VAE Encode with Latent Transparency Offset is under construction now.')
-            print('This should not be important if denoising strength is high.')
-            print('But this will influence results with low denoising strength.')
-            print('But results should be better if you come back (and update) several days later when we finish this part.')
-            return func(latent)
-
-        vae_patcher.set_model_vae_encode_wrapper(wrapper)
-        return
-
+    @torch.no_grad()
+    def encode(self, image):
+        list_of_np_rgba_hwc_uint8 = [np.array(image)]
+        model_management.load_model_gpu(self.model)
+        list_of_np_rgb_padded = [pad_rgb(x) for x in list_of_np_rgba_hwc_uint8]
+        rgb_padded_bchw_01 = torch.from_numpy(np.stack(list_of_np_rgb_padded, axis=0)).float().movedim(-1, 1)
+        rgba_bchw_01 = torch.from_numpy(np.stack(list_of_np_rgba_hwc_uint8, axis=0)).float().movedim(-1, 1) / 255.0
+        a_bchw_01 = rgba_bchw_01[:, 3:, :, :]
+        offset_feed = torch.cat([a_bchw_01, rgb_padded_bchw_01], dim=1).to(device=self.load_device, dtype=self.dtype)
+        offset = self.model.model(offset_feed)
+        return offset

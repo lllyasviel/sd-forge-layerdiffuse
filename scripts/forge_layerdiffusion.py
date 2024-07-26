@@ -6,7 +6,7 @@ import numpy as np
 import copy
 
 from modules import scripts
-from modules.processing import StableDiffusionProcessing
+from modules.processing import StableDiffusionProcessing, StableDiffusionProcessingImg2Img
 from lib_layerdiffusion.enums import ResizeMode
 from lib_layerdiffusion.utils import rgba2rgbfp32, to255unit8, crop_and_resize_image, forge_clip_encode
 from enum import Enum
@@ -18,6 +18,10 @@ from modules_forge.forge_sampler import sampling_prepare
 from modules.modelloader import load_file_from_url
 from lib_layerdiffusion.attention_sharing import AttentionSharingPatcher
 from ldm_patched.modules import model_management
+from modules_forge.forge_canvas.canvas import ForgeCanvas
+from modules import images
+from ldm_patched.ldm.modules.distributions.distributions import DiagonalGaussianDistribution
+from PIL import Image, ImageOps
 
 
 def is_model_loaded(model):
@@ -63,9 +67,17 @@ class LayerDiffusionForForge(scripts.Script):
             gr.HTML('</br>')  # some strange gradio problems
 
             with gr.Row():
-                fg_image = gr.Image(label='Foreground', source='upload', image_mode='RGBA', visible=False)
-                bg_image = gr.Image(label='Background', source='upload', image_mode='RGBA', visible=False)
-                blend_image = gr.Image(label='Blending', source='upload', image_mode='RGBA', visible=False)
+                with gr.Column(visible=False) as fg_col:
+                    gr.Markdown('Foreground')
+                    fg_image = ForgeCanvas(numpy=True, no_scribbles=True, height=300).background
+                with gr.Column(visible=False) as bg_col:
+                    gr.Markdown('Background')
+                    bg_image = ForgeCanvas(numpy=True, no_scribbles=True, height=300).background
+                with gr.Column(visible=False) as blend_col:
+                    gr.Markdown('Blending')
+                    blend_image = ForgeCanvas(numpy=True, no_scribbles=True, height=300).background
+
+            gr.HTML('</br>')  # some strange gradio problems
 
             with gr.Row():
                 weight = gr.Slider(label=f"Weight", value=1.0, minimum=0.0, maximum=2.0, step=0.001)
@@ -104,13 +116,11 @@ class LayerDiffusionForForge(scripts.Script):
 
             return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False, value=''), gr.update(visible=False, value=''), gr.update(visible=False, value='')
 
-        method.change(method_changed, inputs=method, outputs=[fg_image, bg_image, blend_image, resize_mode, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt], show_progress=False, queue=False)
+        method.change(method_changed, inputs=method, outputs=[fg_col, bg_col, blend_col, resize_mode, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt], show_progress=False, queue=False)
 
         return enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt
 
     def process_before_every_sampling(self, p: StableDiffusionProcessing, *script_args, **kwargs):
-        global vae_transparent_decoder, vae_transparent_encoder
-
         # This will be called before every sampling.
         # If you use highres fix, this will be called twice.
 
@@ -139,7 +149,7 @@ class LayerDiffusionForForge(scripts.Script):
         batch_size = p.batch_size
 
         method = LayerMethod(method)
-        print(f'[Layer Diffusion] {method}')
+        print(f'[LayerDiffuse] {method}')
 
         resize_mode = ResizeMode(resize_mode)
         fg_image = crop_and_resize_image(rgba2rgbfp32(fg_image), resize_mode, height, width) if fg_image is not None else None
@@ -148,50 +158,8 @@ class LayerDiffusionForForge(scripts.Script):
 
         original_unet = p.sd_model.forge_objects.unet.clone()
         unet = p.sd_model.forge_objects.unet.clone()
-        vae = p.sd_model.forge_objects.vae.clone()
+        vae = p.sd_model.forge_objects.vae
         clip = p.sd_model.forge_objects.clip
-
-        if method in [LayerMethod.FG_ONLY_ATTN, LayerMethod.FG_ONLY_CONV, LayerMethod.BG_BLEND_TO_FG]:
-            if vae_transparent_decoder is None:
-                model_path = load_file_from_url(
-                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/vae_transparent_decoder.safetensors',
-                    model_dir=layer_model_root,
-                    file_name='vae_transparent_decoder.safetensors'
-                )
-                vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(model_path))
-            vae_transparent_decoder.patch(p, vae.patcher, output_origin)
-
-            if vae_transparent_encoder is None:
-                model_path = load_file_from_url(
-                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/vae_transparent_encoder.safetensors',
-                    model_dir=layer_model_root,
-                    file_name='vae_transparent_encoder.safetensors'
-                )
-                vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(model_path))
-            vae_transparent_encoder.patch(p, vae.patcher)
-
-        if method in [LayerMethod.FG_ONLY_ATTN_SD15, LayerMethod.JOINT_SD15, LayerMethod.BG_TO_FG_SD15]:
-            if vae_transparent_decoder is None:
-                model_path = load_file_from_url(
-                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_vae_transparent_decoder.safetensors',
-                    model_dir=layer_model_root,
-                    file_name='layer_sd15_vae_transparent_decoder.safetensors'
-                )
-                vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(model_path))
-            if method == LayerMethod.JOINT_SD15:
-                vae_transparent_decoder.mod_number = 3
-            if method == LayerMethod.BG_TO_FG_SD15:
-                vae_transparent_decoder.mod_number = 2
-            vae_transparent_decoder.patch(p, vae.patcher, output_origin)
-
-            if vae_transparent_encoder is None:
-                model_path = load_file_from_url(
-                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_vae_transparent_encoder.safetensors',
-                    model_dir=layer_model_root,
-                    file_name='layer_sd15_vae_transparent_encoder.safetensors'
-                )
-                vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(model_path))
-            vae_transparent_encoder.patch(p, vae.patcher)
 
         if method in [LayerMethod.FG_TO_BLEND, LayerMethod.FG_BLEND_TO_BG, LayerMethod.BG_TO_BLEND, LayerMethod.BG_BLEND_TO_FG]:
             if fg_image is not None:
@@ -355,5 +323,120 @@ class LayerDiffusionForForge(scripts.Script):
         unet.add_conditioning_modifier(conditioning_modifier)
 
         p.sd_model.forge_objects.unet = unet
+        return
+
+    def postprocess_image_after_composite(self, p: StableDiffusionProcessing, pp, *script_args, **kwargs):
+        global vae_transparent_decoder, vae_transparent_encoder
+
+        enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
+        if not enabled:
+            return
+
+        mod_number = 1
+        method = LayerMethod(method)
+        need_process = False
+
+        if method in [LayerMethod.FG_ONLY_ATTN, LayerMethod.FG_ONLY_CONV, LayerMethod.BG_BLEND_TO_FG]:
+            need_process = True
+            if vae_transparent_decoder is None:
+                model_path = load_file_from_url(
+                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/vae_transparent_decoder.safetensors',
+                    model_dir=layer_model_root,
+                    file_name='vae_transparent_decoder.safetensors'
+                )
+                vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(model_path))
+
+        if method in [LayerMethod.FG_ONLY_ATTN_SD15, LayerMethod.JOINT_SD15, LayerMethod.BG_TO_FG_SD15]:
+            need_process = True
+            if vae_transparent_decoder is None:
+                model_path = load_file_from_url(
+                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_vae_transparent_decoder.safetensors',
+                    model_dir=layer_model_root,
+                    file_name='layer_sd15_vae_transparent_decoder.safetensors'
+                )
+                vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(model_path))
+            if method == LayerMethod.JOINT_SD15:
+                mod_number = 3
+            if method == LayerMethod.BG_TO_FG_SD15:
+                mod_number = 2
+
+        if not need_process:
+            return
+
+        i = pp.index
+
+        if i % mod_number == 0:
+            latent = p.latents_after_sampling[i]
+            pixel = p.pixels_after_sampling[i]
+
+            lC, lH, lW = latent.shape
+            if lH != pixel.height // 8 or lW != pixel.width // 8:
+                print('[LayerDiffuse] VAE zero latent mode.')
+                latent = torch.zeros((lC, pixel.height // 8, pixel.width // 8)).to(latent)
+
+            png, vis = vae_transparent_decoder.decode(latent, pixel)
+            pp.image = png
+            p.extra_result_images.append(vis)
+        return
+
+    def before_process_init_images(self, p: StableDiffusionProcessingImg2Img, pp, *script_args, **kwargs):
+        global vae_transparent_decoder, vae_transparent_encoder
+
+        enabled, method, weight, ending_step, fg_image, bg_image, blend_image, resize_mode, output_origin, fg_additional_prompt, bg_additional_prompt, blend_additional_prompt = script_args
+        if not enabled:
+            return
+
+        method = LayerMethod(method)
+        need_process = False
+
+        if method in [LayerMethod.FG_ONLY_ATTN, LayerMethod.FG_ONLY_CONV, LayerMethod.BG_BLEND_TO_FG]:
+            need_process = True
+            if vae_transparent_encoder is None:
+                model_path = load_file_from_url(
+                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/vae_transparent_encoder.safetensors',
+                    model_dir=layer_model_root,
+                    file_name='vae_transparent_encoder.safetensors'
+                )
+                vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(model_path))
+
+        if method in [LayerMethod.FG_ONLY_ATTN_SD15, LayerMethod.JOINT_SD15, LayerMethod.BG_TO_FG_SD15]:
+            need_process = True
+            if vae_transparent_encoder is None:
+                model_path = load_file_from_url(
+                    url='https://huggingface.co/LayerDiffusion/layerdiffusion-v1/resolve/main/layer_sd15_vae_transparent_encoder.safetensors',
+                    model_dir=layer_model_root,
+                    file_name='layer_sd15_vae_transparent_encoder.safetensors'
+                )
+                vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(model_path))
+
+        if not need_process:
+            return
+
+        input_png_raw = p.init_images[0]
+        input_png_bg_grey = images.flatten(input_png_raw, (127, 127, 127)).convert('RGBA')
+        p.init_images = [input_png_bg_grey]
+
+        crop_region = pp['crop_region']
+        image = input_png_raw
+
+        if crop_region is None and p.resize_mode != 3:
+            image = images.resize_image(p.resize_mode, image, p.width, p.height, force_RGBA=True)
+
+        if crop_region is not None:
+            image = image.crop(crop_region)
+            image = images.resize_image(2, image, p.width, p.height, force_RGBA=True)
+
+        latent_offset = vae_transparent_encoder.encode(image)
+
+        vae = p.sd_model.forge_objects.vae.clone()
+
+        def vae_regulation(z):
+            log = dict()
+            posterior = DiagonalGaussianDistribution(z)
+            z = posterior.mean + posterior.std * latent_offset.to(posterior.mean)
+            return z, log
+
+        vae.patcher.set_model_vae_regulation(vae_regulation)
+
         p.sd_model.forge_objects.vae = vae
         return
