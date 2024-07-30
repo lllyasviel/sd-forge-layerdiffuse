@@ -20,7 +20,6 @@ from lib_layerdiffusion.attention_sharing import AttentionSharingPatcher
 from ldm_patched.modules import model_management
 from modules_forge.forge_canvas.canvas import ForgeCanvas
 from modules import images
-from ldm_patched.ldm.modules.distributions.distributions import DiagonalGaussianDistribution
 from PIL import Image, ImageOps
 
 
@@ -430,11 +429,9 @@ class LayerDiffusionForForge(scripts.Script):
 
         vae = p.sd_model.forge_objects.vae.clone()
 
-        def vae_regulation(z):
-            log = dict()
-            posterior = DiagonalGaussianDistribution(z)
+        def vae_regulation(posterior):
             z = posterior.mean + posterior.std * latent_offset.to(posterior.mean)
-            return z, log
+            return z
 
         vae.patcher.set_model_vae_regulation(vae_regulation)
 
