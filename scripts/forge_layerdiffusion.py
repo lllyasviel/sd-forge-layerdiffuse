@@ -163,15 +163,15 @@ class LayerDiffusionForForge(scripts.Script):
         if method in [LayerMethod.FG_TO_BLEND, LayerMethod.FG_BLEND_TO_BG, LayerMethod.BG_TO_BLEND, LayerMethod.BG_BLEND_TO_FG]:
             if fg_image is not None:
                 fg_image = vae.encode(torch.from_numpy(np.ascontiguousarray(fg_image[None].copy())))
-                fg_image = unet.model.latent_format.process_in(fg_image)
+                fg_image = vae.first_stage_model.process_in(fg_image)
 
             if bg_image is not None:
                 bg_image = vae.encode(torch.from_numpy(np.ascontiguousarray(bg_image[None].copy())))
-                bg_image = unet.model.latent_format.process_in(bg_image)
+                bg_image = vae.first_stage_model.process_in(bg_image)
 
             if blend_image is not None:
                 blend_image = vae.encode(torch.from_numpy(np.ascontiguousarray(blend_image[None].copy())))
-                blend_image = unet.model.latent_format.process_in(blend_image)
+                blend_image = vae.first_stage_model.process_in(blend_image)
 
         if method in [LayerMethod.FG_TO_BG_SD15, LayerMethod.BG_TO_FG_SD15]:
             if fg_image is not None:
@@ -296,7 +296,7 @@ class LayerDiffusionForForge(scripts.Script):
             layer_lora_model = load_layer_model_state_dict(model_path)
             unet.load_frozen_patcher(layer_lora_model, weight)
 
-        sigma_end = unet.model.model_sampling.percent_to_sigma(ending_step)
+        sigma_end = unet.model.predictor.percent_to_sigma(ending_step)
 
         def remove_concat(cond):
             cond = copy.deepcopy(cond)
