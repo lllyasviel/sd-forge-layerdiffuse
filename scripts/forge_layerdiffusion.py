@@ -14,7 +14,7 @@ from modules.paths import models_path
 from backend import utils, memory_management
 
 from lib_layerdiffusion.models import TransparentVAEDecoder, TransparentVAEEncoder
-from modules_forge.forge_sampler import sampling_prepare
+from backend.sampling.sampling_function import sampling_prepare
 from modules.modelloader import load_file_from_url
 from lib_layerdiffusion.attention_sharing import AttentionSharingPatcher
 from modules_forge.forge_canvas.canvas import ForgeCanvas
