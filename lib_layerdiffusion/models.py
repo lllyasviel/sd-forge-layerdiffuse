@@ -8,8 +8,8 @@ from typing import Optional, Tuple
 from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.models.modeling_utils import ModelMixin
 from diffusers.models.unets.unet_2d_blocks import UNetMidBlock2D, get_down_block, get_up_block
-import ldm_patched.modules.model_management as model_management
-from ldm_patched.modules.model_patcher import ModelPatcher
+from backend import memory_management
+from backend.patcher.base import ModelPatcher
 from torchvision import transforms
 from PIL import Image
 
@@ -219,9 +219,9 @@ def pad_rgb(np_rgba_hwc_uint8):
 
 class TransparentVAEDecoder:
     def __init__(self, sd, mod_number=1):
-        self.load_device = model_management.get_torch_device()
-        self.offload_device = model_management.unet_offload_device()
-        self.dtype = torch.float16 if model_management.should_use_fp16(self.load_device) else torch.float32
+        self.load_device = memory_management.get_torch_device()
+        self.offload_device = memory_management.unet_offload_device()
+        self.dtype = torch.float16 if memory_management.should_use_fp16(self.load_device) else torch.float32
 
         model = UNet1024(in_channels=3, out_channels=4)
         model.load_state_dict(sd, strict=True)
@@ -270,7 +270,7 @@ class TransparentVAEDecoder:
 
     @torch.no_grad()
     def decode(self, latent, pixel):
-        model_management.load_model_gpu(self.model)
+        memory_management.load_model_gpu(self.model)
 
         latent = latent[None, :, :, :].to(device=self.load_device, dtype=self.dtype)
         pixel = transforms.ToTensor()(pixel)[None, :, :, :].to(device=self.load_device, dtype=self.dtype)
@@ -300,9 +300,9 @@ class TransparentVAEDecoder:
 
 class TransparentVAEEncoder:
     def __init__(self, sd):
-        self.load_device = model_management.get_torch_device()
-        self.offload_device = model_management.unet_offload_device()
-        self.dtype = torch.float16 if model_management.should_use_fp16(self.load_device) else torch.float32
+        self.load_device = memory_management.get_torch_device()
+        self.offload_device = memory_management.unet_offload_device()
+        self.dtype = torch.float16 if memory_management.should_use_fp16(self.load_device) else torch.float32
 
         model = LatentTransparencyOffsetEncoder()
         model.load_state_dict(sd, strict=True)
@@ -315,7 +315,7 @@ class TransparentVAEEncoder:
     @torch.no_grad()
     def encode(self, image):
         list_of_np_rgba_hwc_uint8 = [np.array(image)]
-        model_management.load_model_gpu(self.model)
+        memory_management.load_model_gpu(self.model)
         list_of_np_rgb_padded = [pad_rgb(x) for x in list_of_np_rgba_hwc_uint8]
         rgb_padded_bchw_01 = torch.from_numpy(np.stack(list_of_np_rgb_padded, axis=0)).float().movedim(-1, 1)
         rgba_bchw_01 = torch.from_numpy(np.stack(list_of_np_rgba_hwc_uint8, axis=0)).float().movedim(-1, 1) / 255.0

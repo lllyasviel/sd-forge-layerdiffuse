@@ -3,9 +3,7 @@
 import torch
 import einops
 
-from ldm_patched.modules import model_management
-from ldm_patched.modules import utils
-from ldm_patched.ldm.modules.attention import optimized_attention
+from backend import memory_management, utils, attention
 
 
 module_mapping_sd15 = {0: 'input_blocks.1.1.transformer_blocks.0.attn1', 1: 'input_blocks.1.1.transformer_blocks.0.attn2', 2: 'input_blocks.2.1.transformer_blocks.0.attn1', 3: 'input_blocks.2.1.transformer_blocks.0.attn2', 4: 'input_blocks.4.1.transformer_blocks.0.attn1', 5: 'input_blocks.4.1.transformer_blocks.0.attn2', 6: 'input_blocks.5.1.transformer_blocks.0.attn1', 7: 'input_blocks.5.1.transformer_blocks.0.attn2', 8: 'input_blocks.7.1.transformer_blocks.0.attn1', 9: 'input_blocks.7.1.transformer_blocks.0.attn2', 10: 'input_blocks.8.1.transformer_blocks.0.attn1', 11: 'input_blocks.8.1.transformer_blocks.0.attn2', 12: 'output_blocks.3.1.transformer_blocks.0.attn1', 13: 'output_blocks.3.1.transformer_blocks.0.attn2', 14: 'output_blocks.4.1.transformer_blocks.0.attn1', 15: 'output_blocks.4.1.transformer_blocks.0.attn2', 16: 'output_blocks.5.1.transformer_blocks.0.attn1', 17: 'output_blocks.5.1.transformer_blocks.0.attn2', 18: 'output_blocks.6.1.transformer_blocks.0.attn1', 19: 'output_blocks.6.1.transformer_blocks.0.attn2', 20: 'output_blocks.7.1.transformer_blocks.0.attn1', 21: 'output_blocks.7.1.transformer_blocks.0.attn2', 22: 'output_blocks.8.1.transformer_blocks.0.attn1', 23: 'output_blocks.8.1.transformer_blocks.0.attn2', 24: 'output_blocks.9.1.transformer_blocks.0.attn1', 25: 'output_blocks.9.1.transformer_blocks.0.attn2', 26: 'output_blocks.10.1.transformer_blocks.0.attn1', 27: 'output_blocks.10.1.transformer_blocks.0.attn2', 28: 'output_blocks.11.1.transformer_blocks.0.attn1', 29: 'output_blocks.11.1.transformer_blocks.0.attn2', 30: 'middle_block.1.transformer_blocks.0.attn1', 31: 'middle_block.1.transformer_blocks.0.attn2'}
@@ -108,7 +106,7 @@ class AttentionSharingUnit(torch.nn.Module):
             q = self.to_q_lora[f](modified_hidden_states[f])
             k = self.to_k_lora[f](fcf)
             v = self.to_v_lora[f](fcf)
-            o = optimized_attention(q, k, v, self.heads)
+            o = attention.attention_function(q, k, v, self.heads)
             o = self.to_out_lora[f](o)
             o = self.original_module[0].to_out[1](o)
             attn_outs.append(o)
@@ -128,7 +126,7 @@ class AttentionSharingUnit(torch.nn.Module):
         k = self.temporal_k(x)
         v = self.temporal_v(x)
 
-        x = optimized_attention(q, k, v, self.heads)
+        x = attention.attention_function(q, k, v, self.heads)
         x = self.temporal_o(x)
         x = einops.rearrange(x, "(b d) f c -> (b f) d c", d=d)
 
@@ -200,7 +198,7 @@ class HookerLayers(torch.nn.Module):
 class AttentionSharingPatcher(torch.nn.Module):
     def __init__(self, unet, frames=2, use_control=True, rank=256):
         super().__init__()
-        model_management.unload_model_clones(unet)
+        memory_management.unload_model_clones(unet)
 
         units = []
         for i in range(32):
@@ -218,7 +216,7 @@ class AttentionSharingPatcher(torch.nn.Module):
             self.kwargs_encoder = None
 
         self.dtype = torch.float32
-        if model_management.should_use_fp16(model_management.get_torch_device()):
+        if memory_management.should_use_fp16(memory_management.get_torch_device()):
             self.dtype = torch.float16
             self.hookers.half()
         return

@@ -11,20 +11,19 @@ from lib_layerdiffusion.enums import ResizeMode
 from lib_layerdiffusion.utils import rgba2rgbfp32, to255unit8, crop_and_resize_image, forge_clip_encode
 from enum import Enum
 from modules.paths import models_path
-from ldm_patched.modules.utils import load_torch_file
+from backend import utils, memory_management
+
 from lib_layerdiffusion.models import TransparentVAEDecoder, TransparentVAEEncoder
-from ldm_patched.modules.model_management import current_loaded_models
 from modules_forge.forge_sampler import sampling_prepare
 from modules.modelloader import load_file_from_url
 from lib_layerdiffusion.attention_sharing import AttentionSharingPatcher
-from ldm_patched.modules import model_management
 from modules_forge.forge_canvas.canvas import ForgeCanvas
 from modules import images
 from PIL import Image, ImageOps
 
 
 def is_model_loaded(model):
-    return any(model == m.model for m in current_loaded_models)
+    return any(model == m.model for m in memory_management.current_loaded_models)
 
 
 layer_model_root = os.path.join(models_path, 'layer_model')
@@ -49,7 +48,7 @@ class LayerMethod(Enum):
 
 @functools.lru_cache(maxsize=2)
 def load_layer_model_state_dict(filename):
-    return load_torch_file(filename, safe_load=True)
+    return utils.load_torch_file(filename, safe_load=True)
 
 
 class LayerDiffusionForForge(scripts.Script):
@@ -343,7 +342,7 @@ class LayerDiffusionForForge(scripts.Script):
                     model_dir=layer_model_root,
                     file_name='vae_transparent_decoder.safetensors'
                 )
-                vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(model_path))
+                vae_transparent_decoder = TransparentVAEDecoder(utils.load_torch_file(model_path))
 
         if method in [LayerMethod.FG_ONLY_ATTN_SD15, LayerMethod.JOINT_SD15, LayerMethod.BG_TO_FG_SD15]:
             need_process = True
@@ -353,7 +352,7 @@ class LayerDiffusionForForge(scripts.Script):
                     model_dir=layer_model_root,
                     file_name='layer_sd15_vae_transparent_decoder.safetensors'
                 )
-                vae_transparent_decoder = TransparentVAEDecoder(load_torch_file(model_path))
+                vae_transparent_decoder = TransparentVAEDecoder(utils.load_torch_file(model_path))
             if method == LayerMethod.JOINT_SD15:
                 mod_number = 3
             if method == LayerMethod.BG_TO_FG_SD15:
@@ -396,7 +395,7 @@ class LayerDiffusionForForge(scripts.Script):
                     model_dir=layer_model_root,
                     file_name='vae_transparent_encoder.safetensors'
                 )
-                vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(model_path))
+                vae_transparent_encoder = TransparentVAEEncoder(utils.load_torch_file(model_path))
 
         if method in [LayerMethod.FG_ONLY_ATTN_SD15, LayerMethod.JOINT_SD15, LayerMethod.BG_TO_FG_SD15]:
             need_process = True
@@ -406,7 +405,7 @@ class LayerDiffusionForForge(scripts.Script):
                     model_dir=layer_model_root,
                     file_name='layer_sd15_vae_transparent_encoder.safetensors'
                 )
-                vae_transparent_encoder = TransparentVAEEncoder(load_torch_file(model_path))
+                vae_transparent_encoder = TransparentVAEEncoder(utils.load_torch_file(model_path))
 
         if not need_process:
             return

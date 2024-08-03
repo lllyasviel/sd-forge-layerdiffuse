@@ -1,6 +1,6 @@
 import numpy as np
 from lib_layerdiffusion.enums import ResizeMode
-from ldm_patched.modules import model_management
+from backend import memory_management
 import cv2
 import torch
 
@@ -11,7 +11,7 @@ def forge_clip_encode(clip, text):
 
     tokens = clip.tokenize(text, return_word_ids=True)
     cond, pooled = clip.encode_from_tokens(tokens, return_pooled=True)
-    return cond.to(model_management.get_torch_device())
+    return cond.to(memory_management.get_torch_device())
 
 
 def rgba2rgbfp32(x):
