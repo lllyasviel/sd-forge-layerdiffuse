@@ -198,9 +198,9 @@ class LayerDiffusionForForge(scripts.Script):
         bg_additional_prompt = bg_additional_prompt + ', ' + original_prompt if bg_additional_prompt != '' else None
         blend_additional_prompt = blend_additional_prompt + ', ' + original_prompt if blend_additional_prompt != '' else None
 
-        fg_cond = forge_clip_encode(clip, fg_additional_prompt)
-        bg_cond = forge_clip_encode(clip, bg_additional_prompt)
-        blend_cond = forge_clip_encode(clip, blend_additional_prompt)
+        fg_cond = forge_clip_encode(p.sd_model, fg_additional_prompt)
+        bg_cond = forge_clip_encode(p.sd_model, bg_additional_prompt)
+        blend_cond = forge_clip_encode(p.sd_model, blend_additional_prompt)
 
         if method == LayerMethod.JOINT_SD15:
             unet.set_transformer_option('cond_overwrite', [fg_cond, bg_cond, blend_cond])

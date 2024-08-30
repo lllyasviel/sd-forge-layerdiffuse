@@ -5,12 +5,11 @@ import cv2
 import torch
 
 
-def forge_clip_encode(clip, text):
+def forge_clip_encode(sd_model, text):
     if text is None:
         return None
 
-    tokens = clip.tokenize(text, return_word_ids=True)
-    cond, pooled = clip.encode_from_tokens(tokens, return_pooled=True)
+    cond = sd_model.get_learned_conditioning([text])
     return cond.to(memory_management.get_torch_device())
 
 
