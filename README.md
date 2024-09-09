@@ -409,7 +409,7 @@ Steps: 20, Sampler: DPM++ 2M SDE Karras, CFG scale: 7, Seed: 12345, Size: 896x11
 
 then change to `From Foreground to Blending` and drag the transparent image to foreground input.
 
-Note that you drag the real transparent image, not the visualization with checkboard background. Make sure tou see this
+Note that you drag the real transparent image, not the visualization with checkboard background. Make sure you see this
 
 ![image](https://github.com/layerdiffusion/sd-forge-layerdiffusion/assets/161511761/b912e1e8-7511-4afc-aa61-4bb31d6949f7)
 
