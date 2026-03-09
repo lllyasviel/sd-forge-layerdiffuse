@@ -20,6 +20,7 @@ from lib_layerdiffusion.attention_sharing import AttentionSharingPatcher
 from modules_forge.forge_canvas.canvas import ForgeCanvas
 from modules import images
 from PIL import Image, ImageOps
+from modules_forge.packages.comfy.weight_adapter.lora import LoRAAdapter
 
 
 def is_model_loaded(model):
@@ -49,6 +50,35 @@ class LayerMethod(Enum):
 @functools.lru_cache(maxsize=2)
 def load_layer_model_state_dict(filename):
     return utils.load_torch_file(filename, safe_load=True)
+
+
+def apply_layer_model_to_unet(unet, state_dict, strength):
+    patch_dict = {}
+    for k, w in state_dict.items():
+        model_key, patch_type, weight_index = k.split("::")
+        if model_key not in patch_dict:
+            patch_dict[model_key] = {}
+        if patch_type not in patch_dict[model_key]:
+            patch_dict[model_key][patch_type] = {}
+        patch_dict[model_key][patch_type][int(weight_index)] = w
+
+    patch_flat = {}
+    for model_key, v in patch_dict.items():
+        for patch_type, weight_dict in v.items():
+            weight_list = [weight_dict.get(i) for i in range(max(weight_dict.keys()) + 1)]
+            
+            if patch_type == 'lora':
+                mat1 = weight_dict.get(0)
+                mat2 = weight_dict.get(1)
+                alpha = weight_dict.get(2)
+                alpha = alpha.item() if alpha is not None else mat2.shape[0]
+                mid = weight_dict.get(3)
+                weights = (mat1, mat2, alpha, mid, None, None)
+                patch_flat[model_key] = LoRAAdapter(set(), weights)
+            else:
+                patch_flat[model_key] = (patch_type, weight_list)
+
+    unet.add_patches(patches=patch_flat, strength_patch=float(strength), strength_model=1.0)
 
 
 class LayerDiffusionForForge(scripts.Script):
@@ -244,7 +274,7 @@ class LayerDiffusionForForge(scripts.Script):
                 file_name='layer_xl_transparent_attn.safetensors'
             )
             layer_lora_model = load_layer_model_state_dict(model_path)
-            unet.load_frozen_patcher('layer_xl_transparent_attn.safetensors', layer_lora_model, weight)
+            apply_layer_model_to_unet(unet, layer_lora_model, weight)
 
         if method == LayerMethod.FG_ONLY_CONV:
             model_path = load_file_from_url(
@@ -253,7 +283,7 @@ class LayerDiffusionForForge(scripts.Script):
                 file_name='layer_xl_transparent_conv.safetensors'
             )
             layer_lora_model = load_layer_model_state_dict(model_path)
-            unet.load_frozen_patcher('layer_xl_transparent_conv.safetensors', layer_lora_model, weight)
+            apply_layer_model_to_unet(unet, layer_lora_model, weight)
 
         if method == LayerMethod.BG_TO_BLEND:
             model_path = load_file_from_url(
@@ -263,7 +293,7 @@ class LayerDiffusionForForge(scripts.Script):
             )
             unet.extra_concat_condition = bg_image
             layer_lora_model = load_layer_model_state_dict(model_path)
-            unet.load_frozen_patcher('layer_xl_bg2ble.safetensors', layer_lora_model, weight)
+            apply_layer_model_to_unet(unet, layer_lora_model, weight)
 
         if method == LayerMethod.FG_TO_BLEND:
             model_path = load_file_from_url(
@@ -273,7 +303,7 @@ class LayerDiffusionForForge(scripts.Script):
             )
             unet.extra_concat_condition = fg_image
             layer_lora_model = load_layer_model_state_dict(model_path)
-            unet.load_frozen_patcher('layer_xl_fg2ble.safetensors', layer_lora_model, weight)
+            apply_layer_model_to_unet(unet, layer_lora_model, weight)
 
         if method == LayerMethod.BG_BLEND_TO_FG:
             model_path = load_file_from_url(
@@ -283,7 +313,7 @@ class LayerDiffusionForForge(scripts.Script):
             )
             unet.extra_concat_condition = torch.cat([bg_image, blend_image], dim=1)
             layer_lora_model = load_layer_model_state_dict(model_path)
-            unet.load_frozen_patcher('layer_xl_bgble2fg.safetensors', layer_lora_model, weight)
+            apply_layer_model_to_unet(unet, layer_lora_model, weight)
 
         if method == LayerMethod.FG_BLEND_TO_BG:
             model_path = load_file_from_url(
@@ -293,7 +323,7 @@ class LayerDiffusionForForge(scripts.Script):
             )
             unet.extra_concat_condition = torch.cat([fg_image, blend_image], dim=1)
             layer_lora_model = load_layer_model_state_dict(model_path)
-            unet.load_frozen_patcher('layer_xl_fgble2bg.safetensors', layer_lora_model, weight)
+            apply_layer_model_to_unet(unet, layer_lora_model, weight)
 
         sigma_end = unet.model.predictor.percent_to_sigma(ending_step)
 
